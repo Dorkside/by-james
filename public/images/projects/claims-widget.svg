@@ -1,0 +1,54 @@
+<svg width="800" height="400" viewBox="0 0 800 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .bg { fill: #fafaf9; }
+    .widget { fill: #fafaf9; stroke: #e7e5e4; }
+    .accent { fill: #4a5944; }
+    .highlight { fill: #c4704d; }
+    .data { fill: #4d6c7c; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #1c1917; }
+      .widget { fill: #1c1917; stroke: #292524; }
+      .accent { fill: #9ab594; }
+      .highlight { fill: #e8b597; }
+      .data { fill: #a3bac7; }
+    }
+  </style>
+
+  <!-- Background -->
+  <rect class="bg" width="800" height="400"/>
+  
+  <!-- Main Widget Frame -->
+  <rect class="widget" x="200" y="50" width="400" height="300" rx="8" stroke-width="2"/>
+  
+  <!-- Header Bar -->
+  <rect class="accent" x="200" y="50" width="400" height="40" rx="8 8 0 0"/>
+  <circle class="highlight" cx="230" cy="70" r="6"/>
+  <circle class="highlight" cx="250" cy="70" r="6"/>
+  <circle class="highlight" cx="270" cy="70" r="6"/>
+  
+  <!-- Data Visualization -->
+  <g transform="translate(220,120)">
+    <!-- Progress Bars -->
+    <rect class="data" x="0" y="0" width="280" height="8" rx="4" opacity="0.2"/>
+    <rect class="data" x="0" y="0" width="210" height="8" rx="4"/>
+    
+    <rect class="data" x="0" y="30" width="280" height="8" rx="4" opacity="0.2"/>
+    <rect class="data" x="0" y="30" width="180" height="8" rx="4"/>
+    
+    <rect class="data" x="0" y="60" width="280" height="8" rx="4" opacity="0.2"/>
+    <rect class="data" x="0" y="60" width="240" height="8" rx="4"/>
+  </g>
+  
+  <!-- Status Indicators -->
+  <g transform="translate(220,220)">
+    <rect class="accent" x="0" y="0" width="80" height="40" rx="4"/>
+    <rect class="highlight" x="100" y="0" width="80" height="40" rx="4"/>
+    <rect class="data" x="200" y="0" width="80" height="40" rx="4"/>
+  </g>
+  
+  <!-- Connection Lines -->
+  <path class="accent" stroke-width="2" stroke-dasharray="4 4"
+    d="M300 280 Q400 320 500 280" stroke="currentColor" fill="none"/>
+  <path class="highlight" stroke-width="2" stroke-dasharray="4 4"
+    d="M300 300 Q400 340 500 300" stroke="currentColor" fill="none"/>
+</svg> 
