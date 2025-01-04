@@ -1,10 +1,10 @@
 <template>
-  <article class="border-b pb-6 mb-6 last:border-b-0 last:mb-0 last:pb-0">
+  <article class="group">
+    <FormattedDate :date="post.date" className="text-sm text-accent-green/80 mb-2" />
     <h2 class="text-xl font-title mb-2">
-      <NuxtLink :to="post._path">{{ post.title }}</NuxtLink>
+      <NuxtLink :to="post._path" class="hover:text-accent-green transition-colors">{{ post.title }}</NuxtLink>
     </h2>
-    <p class="mb-2">{{ post.description }}</p>
-    <FormattedDate :date="post.date" />
+    <p class="text-primary-900 leading-relaxed">{{ post.description }}</p>
   </article>
 </template>
 

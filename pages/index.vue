@@ -1,27 +1,41 @@
 <template>
-  <div class="max-w-3xl mx-auto">
-    <h1 class="text-4xl font-bold mb-4">Hi, I'm James</h1>
-    <p class="text-xl text-gray-600 mb-8">
-      I write about software development and share my projects here.
-    </p>
+  <div class="max-w-2xl mx-auto">
+    <div class="mb-16">
+      <h1 class="text-4xl font-title mb-4">Hi, I'm James</h1>
+      <p class="text-lg text-primary-900 leading-relaxed">
+        I write about software development and share my projects here. My focus is on practical insights and real-world experiences in software engineering.
+      </p>
+    </div>
     
-    <section class="mb-12">
-      <h2 class="text-2xl font-bold mb-6">Latest Articles</h2>
-      <div class="grid gap-6">
+    <section class="mb-16">
+      <h2 class="text-2xl font-title mb-8">Latest Articles</h2>
+      <div class="space-y-8">
         <ContentCard v-for="post in articles" :key="post._path" :post="post" />
       </div>
-      <NuxtLink to="/articles" class="inline-block mt-4 text-blue-600 hover:underline">
-        View all articles →
+      <NuxtLink 
+        to="/articles" 
+        class="inline-flex items-center mt-8 text-sm font-medium text-accent-green hover:text-accent-green/80 transition-colors"
+      >
+        View all articles
+        <svg class="w-4 h-4 ml-1" viewBox="0 0 16 16" fill="none">
+          <path d="M6 12l4-4-4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </NuxtLink>
     </section>
 
     <section>
-      <h2 class="text-2xl font-bold mb-6">Featured Projects</h2>
-      <div class="grid gap-6">
+      <h2 class="text-2xl font-title mb-8">Featured Projects</h2>
+      <div class="space-y-8">
         <ProjectCard v-for="project in projects" :key="project._path" :project="project" />
       </div>
-      <NuxtLink to="/portfolio" class="inline-block mt-4 text-blue-600 hover:underline">
-        View all projects →
+      <NuxtLink 
+        to="/portfolio" 
+        class="inline-flex items-center mt-8 text-sm font-medium text-accent-green hover:text-accent-green/80 transition-colors"
+      >
+        View all projects
+        <svg class="w-4 h-4 ml-1" viewBox="0 0 16 16" fill="none">
+          <path d="M6 12l4-4-4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </NuxtLink>
     </section>
   </div>
