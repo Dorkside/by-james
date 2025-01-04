@@ -1,0 +1,36 @@
+<svg width="800" height="400" viewBox="0 0 800 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .canvas { fill: #fafaf9; stroke: #e7e5e4; }
+    .element { fill: #4a5944; }
+    .element-accent { fill: #c4704d; }
+    .cursor { fill: #4d6c7c; }
+    @media (prefers-color-scheme: dark) {
+      .canvas { fill: #1c1917; stroke: #292524; }
+      .element { fill: #9ab594; }
+      .element-accent { fill: #e8b597; }
+      .cursor { fill: #a3bac7; }
+    }
+  </style>
+  
+  <!-- Background Canvas -->
+  <rect class="canvas" x="100" y="50" width="600" height="300" rx="8" stroke-width="2"/>
+  
+  <!-- Design Elements -->
+  <circle class="element" cx="250" cy="150" r="40"/>
+  <rect class="element-accent" x="400" y="120" width="200" height="60" rx="4"/>
+  <path class="element" d="M200 250 L300 250 L250 300 Z"/>
+  
+  <!-- Collaborative Cursors -->
+  <g class="cursor" transform="translate(280,160)">
+    <path d="M0 0 L20 8 L8 20 Z"/>
+  </g>
+  <g class="cursor" transform="translate(450,150) rotate(45)">
+    <path d="M0 0 L20 8 L8 20 Z"/>
+  </g>
+  
+  <!-- Connection Lines -->
+  <path class="element" stroke-width="2" stroke-dasharray="4 4"
+    d="M250 150 Q325 100 400 150" stroke="currentColor" fill="none"/>
+  <path class="element-accent" stroke-width="2" stroke-dasharray="4 4"
+    d="M250 250 Q325 300 400 250" stroke="currentColor" fill="none"/>
+</svg> 
