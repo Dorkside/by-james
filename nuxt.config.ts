@@ -5,13 +5,25 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/content',
     '@nuxtjs/tailwindcss',
-    '@nuxtjs/robots',
+    'nuxt-simple-robots',
     'nuxt-simple-sitemap',
     '@nuxtjs/color-mode',
     '@nuxt/image'
   ],
   site: {
     url: 'https://james-martin.dev'
+  },
+  robots: {
+    allow: [
+      '/',
+      '/articles',
+      '/portfolio'
+    ],
+    disallow: [
+      '/api',
+      '/*.json',
+      '/*.xml'
+    ]
   },
   image: {
     quality: 80,
@@ -100,12 +112,6 @@ export default defineNuxtConfig({
         dark: 'github-dark'
       }
     }
-  },
-  sitemap: {
-    siteUrl: 'https://james-martin.dev'
-  },
-  robots: {
-    sitemap: 'https://james-martin.dev/sitemap.xml'
   },
   colorMode: {
     classSuffix: '',
