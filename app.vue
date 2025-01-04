@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen bg-primary-50 text-primary-900">
-    <header class="border-b border-primary-200">
+  <div class="min-h-screen bg-primary-50 dark:bg-primary-900 text-primary-800 dark:text-primary-50 transition-colors">
+    <header class="border-b border-primary-200 dark:border-primary-800">
       <LayoutNavBar />
     </header>
     <main class="container mx-auto px-4 py-12 max-w-4xl">
@@ -10,6 +10,13 @@
 </template>
 
 <script setup>
+const { initDarkMode } = useDarkMode()
+
+// Initialize dark mode
+onMounted(() => {
+  initDarkMode()
+})
+
 useHead({
   link: [
     {
