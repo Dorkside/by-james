@@ -2,7 +2,7 @@
   <div class="max-w-2xl mx-auto">
     <div class="mb-16">
       <h1 class="text-4xl font-title mb-4">Hi, I'm James</h1>
-      <p class="text-lg text-primary-900 leading-relaxed">
+      <p class="text-lg text-primary-900 dark:text-primary-50 leading-relaxed">
         I write about software development and share my projects here. My focus is on practical insights and real-world experiences in software engineering.
       </p>
     </div>

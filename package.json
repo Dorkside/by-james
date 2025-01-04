@@ -10,9 +10,11 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "nuxt": "^3.13.0",
     "@nuxt/content": "^2.12.1",
+    "@nuxtjs/robots": "^5.1.0",
     "@nuxtjs/tailwindcss": "^6.11.4",
-    "@tailwindcss/typography": "^0.5.10"
+    "@tailwindcss/typography": "^0.5.10",
+    "nuxt": "^3.13.0",
+    "nuxt-simple-sitemap": "^4.4.1"
   }
 }

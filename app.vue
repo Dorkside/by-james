@@ -1,11 +1,12 @@
 <template>
-  <div class="min-h-screen bg-primary-50 dark:bg-primary-900 text-primary-800 dark:text-primary-50 transition-colors">
+  <div class="min-h-screen bg-primary-50 dark:bg-primary-900 text-primary-800 dark:text-primary-50 transition-colors flex flex-col">
     <header class="border-b border-primary-200 dark:border-primary-800">
       <LayoutNavBar />
     </header>
-    <main class="container mx-auto px-4 py-12 max-w-4xl">
+    <main class="container mx-auto px-4 py-12 max-w-4xl flex-grow">
       <NuxtPage />
     </main>
+    <LayoutFooter />
   </div>
 </template>
 
