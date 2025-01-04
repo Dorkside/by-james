@@ -6,7 +6,8 @@ export default defineNuxtConfig({
     '@nuxt/content',
     '@nuxtjs/tailwindcss',
     '@nuxtjs/robots',
-    'nuxt-simple-sitemap'
+    'nuxt-simple-sitemap',
+    '@nuxtjs/color-mode'
   ],
   app: {
     head: {
@@ -48,5 +49,10 @@ export default defineNuxtConfig({
   },
   robots: {
     sitemap: 'https://james-martin.dev/sitemap.xml'
+  },
+  colorMode: {
+    classSuffix: '',
+    preference: 'system',
+    fallback: 'light'
   }
 })

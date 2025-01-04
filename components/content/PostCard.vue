@@ -2,7 +2,7 @@
   <NuxtLink :to="post._path" class="block group">
     <article class="p-6 -m-6 rounded-lg transition-colors hover:bg-primary-100 dark:hover:bg-primary-800">
       <div class="flex items-center gap-3 mb-2">
-        <time :datetime="formatISODate(post.date)" class="text-sm text-accent-green/80">
+        <time :datetime="formatISODate(post.date)" class="text-sm text-primary-700 dark:text-primary-100">
           {{ formatDate(post.date) }}
         </time>
         <div class="flex flex-wrap gap-2">
@@ -15,7 +15,7 @@
       <h2 class="text-xl font-title mb-2 text-primary-900 dark:text-primary-50 group-hover:text-accent-green dark:group-hover:text-accent-green-dark transition-colors">
         {{ post.title }}
       </h2>
-      <p class="text-primary-900 dark:text-primary-50 leading-relaxed">{{ post.description }}</p>
+      <p class="text-primary-700 dark:text-primary-100 leading-relaxed">{{ post.description }}</p>
     </article>
   </NuxtLink>
 </template>

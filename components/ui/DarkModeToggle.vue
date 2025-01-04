@@ -1,11 +1,11 @@
 <template>
   <button
     class="p-2 rounded-full hover:bg-primary-200 dark:hover:bg-primary-800 transition-colors"
-    @click="toggleDark"
+    @click="toggleColorMode"
     aria-label="Toggle dark mode"
   >
     <svg
-      v-if="isDark"
+      v-if="colorMode.value === 'dark'"
       class="w-5 h-5 text-accent-green-dark"
       viewBox="0 0 24 24"
       fill="none"
@@ -33,5 +33,8 @@
 </template>
 
 <script setup lang="ts">
-const { isDark, toggleDark } = useDarkMode()
-</script> 
+const colorMode = useColorMode()
+
+const toggleColorMode = () => {
+  colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
+}</script> 

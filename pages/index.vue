@@ -2,7 +2,7 @@
   <div class="max-w-2xl mx-auto">
     <div class="mb-16">
       <h1 class="text-4xl font-title mb-4">Hi, I'm James</h1>
-      <p class="text-lg text-primary-900 dark:text-primary-50 leading-relaxed">
+      <p class="text-lg text-primary-700 dark:text-primary-100 leading-relaxed">
         Welcome to my corner of the web where I document my software development journey. Here, I share practical insights from building production systems, explore technical challenges, and discuss the art of crafting meaningful solutions.
       </p>
     </div>
@@ -16,7 +16,7 @@
       </div>
       <NuxtLink 
         to="/articles" 
-        class="inline-flex items-center mt-8 text-sm font-medium text-accent-green hover:text-accent-green/80 transition-colors"
+        class="inline-flex items-center mt-8 text-sm font-medium text-accent-green dark:text-accent-green-dark hover:text-accent-green/80 dark:hover:text-accent-green-dark/80 transition-colors"
       >
         View all articles
         <svg class="w-4 h-4 ml-1" viewBox="0 0 16 16" fill="none">
@@ -34,7 +34,7 @@
       </div>
       <NuxtLink 
         to="/portfolio" 
-        class="inline-flex items-center mt-8 text-sm font-medium text-accent-green hover:text-accent-green/80 transition-colors"
+        class="inline-flex items-center mt-8 text-sm font-medium text-accent-green dark:text-accent-green-dark hover:text-accent-green/80 dark:hover:text-accent-green-dark/80 transition-colors"
       >
         View all projects
         <svg class="w-4 h-4 ml-1" viewBox="0 0 16 16" fill="none">
