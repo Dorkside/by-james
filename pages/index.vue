@@ -3,14 +3,16 @@
     <div class="mb-16">
       <h1 class="text-4xl font-title mb-4">Hi, I'm James</h1>
       <p class="text-lg text-primary-900 dark:text-primary-50 leading-relaxed">
-        I write about software development and share my projects here. My focus is on practical insights and real-world experiences in software engineering.
+        Welcome to my corner of the web where I document my software development journey. Here, I share practical insights from building production systems, explore technical challenges, and discuss the art of crafting meaningful solutions.
       </p>
     </div>
     
     <section class="mb-16">
       <h2 class="text-2xl font-title mb-8">Latest Articles</h2>
       <div class="space-y-8">
-        <ContentCard v-for="post in articles" :key="post._path" :post="post" />
+        <ContentQuery path="/articles" :sort="{ date: -1 }" :limit="3" v-slot="{ data }">
+          <PostCard v-for="article in data" :key="article._path" :post="article" />
+        </ContentQuery>
       </div>
       <NuxtLink 
         to="/articles" 
@@ -26,7 +28,9 @@
     <section>
       <h2 class="text-2xl font-title mb-8">Featured Projects</h2>
       <div class="space-y-8">
-        <ProjectCard v-for="project in projects" :key="project._path" :project="project" />
+        <ContentQuery path="/portfolio" :where="{ featured: true }" v-slot="{ data }">
+          <ProjectCard v-for="project in data" :key="project._path" :project="project" />
+        </ContentQuery>
       </div>
       <NuxtLink 
         to="/portfolio" 
@@ -42,11 +46,5 @@
 </template>
 
 <script setup>
-const { data: articles } = await useAsyncData('latest-articles', 
-  () => queryContent('/articles').sort({ date: -1 }).limit(3).find()
-)
-
-const { data: projects } = await useAsyncData('featured-projects',
-  () => queryContent('/portfolio').where({ featured: true }).find()
-)
+// Content is automatically fetched using ContentQuery components
 </script>

@@ -1,19 +1,30 @@
 ---
-title: Welcome to By James
-description: A place where I share my development journey and insights
+title: Welcome to my Developer Blog
+description: A place where I share insights about software development, project experiences, and technical discoveries.
 date: 2024-04-03
+tags: ["introduction", "development"]
 ---
 
-# Welcome to By James
-
-I'm excited to start sharing my development journey, technical insights, and experiences here. This blog will be a place where I document my learning process and hopefully help others along the way.
+I'm excited to start sharing my development journey, technical insights, and project experiences here. This blog is a space where I'll document my learnings, discuss interesting technical challenges, and share solutions that might help other developers.
 
 ## What to Expect
 
 I'll be writing about:
 - Software development best practices
-- Technical tutorials and guides
-- Project breakdowns
-- Learning resources I find helpful
+- Deep dives into technical solutions
+- Project case studies and learnings
+- Development tools and workflows
+- Architecture decisions and their impact
 
-Stay tuned for more content!
+## Recent Projects
+
+Some of the projects I'll be discussing include:
+- A high-volume claims processing widget handling 10K claims weekly
+- A collaborative canvas platform for creating personalized gifts
+- Various tools and utilities I've built along the way
+
+## Let's Connect
+
+I believe in the power of community and shared knowledge. Feel free to reach out through [GitHub](https://github.com/Dorkside) or [LinkedIn](https://linkedin.com/in/Dorkside) if you'd like to discuss any of the topics I cover or share your own experiences.
+
+Stay tuned for more content! 
