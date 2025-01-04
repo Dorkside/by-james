@@ -2,7 +2,15 @@
   <NuxtLink :to="project._path" class="block group">
     <article class="p-6 -m-6 rounded-lg transition-colors hover:bg-primary-100 dark:hover:bg-primary-800">
       <div class="mb-4 overflow-hidden rounded-lg border border-primary-200 dark:border-primary-800">
-        <img v-if="project.image" :src="project.image" :alt="project.title" class="w-full h-48 object-cover bg-primary-100 dark:bg-primary-800">
+        <NuxtImg
+          v-if="project.image"
+          :src="project.image"
+          :alt="project.title"
+          class="w-full h-48 object-cover bg-primary-100 dark:bg-primary-800"
+          loading="lazy"
+          placeholder
+          sizes="sm:100vw md:50vw lg:400px"
+        />
       </div>
       <div class="flex items-center gap-3 mb-3">
         <span v-if="project.status" class="text-xs px-2 py-1 rounded-full bg-primary-100 dark:bg-primary-800 text-primary-800 dark:text-primary-100">

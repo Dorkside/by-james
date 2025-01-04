@@ -7,8 +7,21 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@nuxtjs/robots',
     'nuxt-simple-sitemap',
-    '@nuxtjs/color-mode'
+    '@nuxtjs/color-mode',
+    '@nuxt/image'
   ],
+  image: {
+    quality: 80,
+    format: ['webp', 'avif', 'jpeg'],
+    screens: {
+      'xs': 320,
+      'sm': 640,
+      'md': 768,
+      'lg': 1024,
+      'xl': 1280,
+      'xxl': 1536
+    }
+  },
   app: {
     head: {
       htmlAttrs: {
@@ -31,16 +44,20 @@ export default defineNuxtConfig({
     }
   },
   content: {
-    highlight: {
-      theme: {
-        default: 'github-light',
-        dark: 'github-dark'
-      }
-    },
     markdown: {
       toc: {
         depth: 3,
         searchDepth: 3
+      },
+      // Configure to use NuxtImg for markdown images
+      tags: {
+        img: 'NuxtImg'
+      }
+    },
+    highlight: {
+      theme: {
+        default: 'github-light',
+        dark: 'github-dark'
       }
     }
   },

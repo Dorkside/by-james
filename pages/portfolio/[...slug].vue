@@ -1,6 +1,16 @@
 <template>
   <article v-if="data" class="max-w-3xl mx-auto">
     <div class="mb-8">
+      <div v-if="data.image" class="mb-8 overflow-hidden rounded-lg border border-primary-200 dark:border-primary-800">
+        <NuxtImg
+          :src="data.image"
+          :alt="data.title"
+          class="w-full aspect-video object-cover bg-primary-100 dark:bg-primary-800"
+          loading="eager"
+          placeholder
+          sizes="sm:100vw md:768px lg:1024px"
+        />
+      </div>
       <h1 class="text-4xl font-title mb-4 text-primary-900 dark:text-white">{{ data.title }}</h1>
       <div class="flex items-center gap-3 mb-4">
         <span v-if="data.status" class="text-sm px-2 py-1 rounded-full bg-primary-100 dark:bg-primary-800 text-primary-800 dark:text-primary-100">
