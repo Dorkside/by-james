@@ -10,6 +10,9 @@ export default defineNuxtConfig({
     '@nuxtjs/color-mode',
     '@nuxt/image'
   ],
+  site: {
+    url: 'https://james-martin.dev'
+  },
   image: {
     quality: 80,
     format: ['webp', 'avif', 'jpeg'],
