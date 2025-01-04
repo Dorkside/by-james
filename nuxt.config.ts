@@ -37,6 +37,8 @@ export default defineNuxtConfig({
         { name: 'description', content: 'Personal blog sharing software development insights, experiences, and practical solutions from building production systems.' },
         { name: 'author', content: 'James Martin' },
         { name: 'theme-color', content: '#4a5944' },
+        { name: 'msapplication-TileColor', content: '#4a5944' },
+        { name: 'msapplication-config', content: '/images/browserconfig.xml' },
         
         // Open Graph
         { property: 'og:type', content: 'website' },
@@ -61,9 +63,21 @@ export default defineNuxtConfig({
         { name: 'keywords', content: 'software development, web development, programming, javascript, typescript, vue, nuxt, software engineering' }
       ],
       link: [
-        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        // Favicons
+        { rel: 'icon', type: 'image/x-icon', href: '/images/favicon.ico' },
+        { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/images/favicon-16x16.png' },
+        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/images/favicon-32x32.png' },
+        { rel: 'icon', type: 'image/png', sizes: '192x192', href: '/images/android-chrome-192x192.png' },
+        { rel: 'icon', type: 'image/png', sizes: '512x512', href: '/images/android-chrome-512x512.png' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/images/apple-touch-icon.png' },
+        { rel: 'mask-icon', href: '/images/safari-pinned-tab.svg', color: '#4a5944' },
+        
+        // Other links
         { rel: 'canonical', href: 'https://james-martin.dev' },
-        { rel: 'alternate', type: 'application/rss+xml', title: 'RSS', href: '/feed.xml' }
+        { rel: 'alternate', type: 'application/rss+xml', title: 'RSS', href: '/feed.xml' },
+        
+        // Fonts
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap' }
       ]
     }
   },
