@@ -1,7 +1,7 @@
 ---
 title: High-Volume Claims Processing Widget
 description: A production-grade insurance claims widget handling 10,000+ claims weekly, demonstrating the journey from prototype to enterprise-scale solution.
-date: 2024-04-03
+date: 2025-01-04
 status: production
 featured: true
 technologies: ["Vue.js", "REST APIs"]

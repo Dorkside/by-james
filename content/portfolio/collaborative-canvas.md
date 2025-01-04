@@ -1,7 +1,7 @@
 ---
 title: Collaborative Canvas Platform
 description: A real-time collaborative platform for creating personalized, meaningful gifts that celebrate connections and milestones.
-date: 2024-04-03
+date: 2025-01-04
 status: concept
 featured: true
 technologies: ["Vue.js", "WebSocket", "Canvas API", "Node.js"]

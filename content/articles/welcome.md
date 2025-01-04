@@ -1,7 +1,7 @@
 ---
 title: Welcome to my Developer Blog
 description: A place where I share insights about software development, project experiences, and technical discoveries.
-date: 2024-04-03
+date: 2025-01-04
 tags: ["introduction", "development"]
 ---
 
