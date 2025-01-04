@@ -4,9 +4,18 @@
       <div class="flex flex-col items-center space-y-6">
         <NuxtLink 
           to="/" 
-          class="text-sm font-title hover:text-accent-green dark:hover:text-accent-green-dark transition-colors"
+          class="hover:opacity-90 transition-all bg-accent-green/20 dark:bg-accent-green-dark/20 px-3 py-1.5 rounded-full group flex items-center space-x-2"
         >
-          by <span class="text-accent-green dark:text-accent-green-dark">James</span>
+          <span class="text-lg font-title">by</span>
+          <span class="flex items-center">
+            <NuxtImg
+              src="/images/logo.png"
+              alt="J"
+              class="h-6 w-auto invert dark:invert-0 group-hover:scale-105 transition-transform"
+              loading="lazy"
+            />
+            <span class="text-lg font-title">ames</span>
+          </span>
         </NuxtLink>
         <UiSocialLinks />
         <nav class="flex items-center space-x-4 text-sm text-primary-800/60 dark:text-primary-50/60">
