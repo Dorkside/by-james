@@ -1,25 +1,105 @@
 <template>
-  <nav class="container mx-auto px-4 py-6 flex items-center justify-between max-w-4xl">
-    <NuxtLink 
-      to="/" 
-      class="text-lg font-title hover:text-accent-green dark:hover:text-accent-green-dark transition-colors"
+  <nav class="container mx-auto px-4 py-3 max-w-4xl">
+    <div class="flex items-center justify-between">
+      <NuxtLink 
+        to="/" 
+        class="text-lg font-title hover:text-accent-green dark:hover:text-accent-green-dark transition-colors"
+      >
+        by <span class="text-accent-green dark:text-accent-green-dark">James</span>
+      </NuxtLink>
+
+      <!-- Desktop Navigation -->
+      <div class="hidden md:flex items-center space-x-8">
+        <NuxtLink 
+          to="/articles" 
+          class="hover:text-accent-green dark:hover:text-accent-green-dark transition-colors"
+        >
+          Articles
+        </NuxtLink>
+        <NuxtLink 
+          to="/portfolio" 
+          class="hover:text-accent-green dark:hover:text-accent-green-dark transition-colors"
+        >
+          Portfolio
+        </NuxtLink>
+        <UiDarkModeToggle />
+      </div>
+
+      <!-- Mobile Controls -->
+      <div class="md:hidden flex items-center space-x-2">
+        <UiDarkModeToggle />
+        <button 
+          @click="isMenuOpen = !isMenuOpen"
+          class="p-1 hover:text-accent-green dark:hover:text-accent-green-dark transition-colors"
+          aria-label="Toggle menu"
+        >
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            class="h-5 w-5" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor"
+          >
+            <path 
+              v-if="!isMenuOpen"
+              stroke-linecap="round" 
+              stroke-linejoin="round" 
+              stroke-width="2" 
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+            <path 
+              v-else
+              stroke-linecap="round" 
+              stroke-linejoin="round" 
+              stroke-width="2" 
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <div 
+      v-show="isMenuOpen"
+      class="md:hidden py-2 flex flex-col space-y-2 items-center transition-all duration-300 ease-in-out"
     >
-      by <span class="text-accent-green dark:text-accent-green-dark">James</span>
-    </NuxtLink>
-    <div class="flex items-center space-x-8">
       <NuxtLink 
         to="/articles" 
-        class="hover:text-accent-green dark:hover:text-accent-green-dark transition-colors"
+        class="hover:text-accent-green dark:hover:text-accent-green-dark transition-colors w-full text-center py-1"
+        @click="isMenuOpen = false"
       >
         Articles
       </NuxtLink>
       <NuxtLink 
         to="/portfolio" 
-        class="hover:text-accent-green dark:hover:text-accent-green-dark transition-colors"
+        class="hover:text-accent-green dark:hover:text-accent-green-dark transition-colors w-full text-center py-1"
+        @click="isMenuOpen = false"
       >
         Portfolio
       </NuxtLink>
-      <UiDarkModeToggle />
     </div>
   </nav>
 </template>
+
+<script setup>
+const isMenuOpen = ref(false)
+
+// Close menu when route changes
+watch(() => useRoute().fullPath, () => {
+  isMenuOpen.value = false
+})
+
+// Close menu when escape key is pressed
+onMounted(() => {
+  const handleEscape = (e) => {
+    if (e.key === 'Escape') {
+      isMenuOpen.value = false
+    }
+  }
+  window.addEventListener('keydown', handleEscape)
+  onUnmounted(() => {
+    window.removeEventListener('keydown', handleEscape)
+  })
+})
+</script>
