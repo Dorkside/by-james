@@ -25,21 +25,45 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: {
-        lang: 'en'
+        lang: 'en',
+        dir: 'ltr'
       },
-      title: 'by James - Software Development Insights',
+      title: 'James Martin - Software Development Insights',
+      titleTemplate: '%s | James Martin',
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: 'Personal blog sharing software development insights, experiences, and projects.' },
+        { name: 'format-detection', content: 'telephone=no' },
+        { name: 'description', content: 'Personal blog sharing software development insights, experiences, and practical solutions from building production systems.' },
+        { name: 'author', content: 'James Martin' },
         { name: 'theme-color', content: '#4a5944' },
+        
+        // Open Graph
         { property: 'og:type', content: 'website' },
-        { property: 'og:title', content: 'by James - Software Development Insights' },
-        { property: 'og:description', content: 'Personal blog sharing software development insights, experiences, and projects.' },
+        { property: 'og:site_name', content: 'James Martin' },
+        { property: 'og:title', content: 'James Martin - Software Development Insights' },
+        { property: 'og:description', content: 'Personal blog sharing software development insights, experiences, and practical solutions from building production systems.' },
+        { property: 'og:image', content: 'https://james-martin.dev/images/og-image.jpg' },
+        { property: 'og:url', content: 'https://james-martin.dev' },
+        { property: 'og:locale', content: 'en_US' },
+        
+        // Twitter
         { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:site', content: '@Dorkside' },
+        { name: 'twitter:creator', content: '@Dorkside' },
+        { name: 'twitter:title', content: 'James Martin - Software Development Insights' },
+        { name: 'twitter:description', content: 'Personal blog sharing software development insights, experiences, and practical solutions from building production systems.' },
+        { name: 'twitter:image', content: 'https://james-martin.dev/images/og-image.jpg' },
+        
+        // Additional SEO
+        { name: 'robots', content: 'index, follow' },
+        { name: 'googlebot', content: 'index, follow' },
+        { name: 'keywords', content: 'software development, web development, programming, javascript, typescript, vue, nuxt, software engineering' }
       ],
       link: [
-        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'canonical', href: 'https://james-martin.dev' },
+        { rel: 'alternate', type: 'application/rss+xml', title: 'RSS', href: '/feed.xml' }
       ]
     }
   },
@@ -49,7 +73,6 @@ export default defineNuxtConfig({
         depth: 3,
         searchDepth: 3
       },
-      // Configure to use NuxtImg for markdown images
       tags: {
         img: 'NuxtImg'
       }
