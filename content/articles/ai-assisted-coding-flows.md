@@ -1,7 +1,7 @@
 ---
 title: "AI-Assisted Coding Flows: A Developer's Guide to the Future"
 description: "Discover how AI-assisted coding with tools like Cursor is revolutionizing development workflows and why developers need to adapt now."
-date: 2024-02-14
+date: 2025-02-14
 author: "James Martin"
 ---
 
