@@ -97,7 +97,6 @@ But it still needs us for:
 - Making architectural decisions
 - Understanding business context
 - Maintaining code quality
-- Handling edge cases that weren't in its training data
 
 ## Moving Forward
 
