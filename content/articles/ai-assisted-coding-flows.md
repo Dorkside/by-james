@@ -11,7 +11,7 @@ Let's cut through the noise about AI coding assistants. After months of integrat
 
 ## Why Now? Because Time Doesn't Wait
 
-The gap is widening. While some developers still debate the merits of AI assistance, others are shipping features in half the time. Yes, GitHub Copilot made AI mainstream, but tools like Cursor are pushing into territory I honestly didn't think was possible yet. The collaboration between human and AI is becoming less about autocomplete and more about genuine pair programming.s
+The gap is widening. While some developers still debate the merits of AI assistance, others are shipping features in half the time. Yes, GitHub Copilot made AI mainstream, but tools like Cursor are pushing into territory I honestly didn't think was possible yet. The collaboration between human and AI is becoming less about autocomplete and more about genuine pair programming.
 
 ## My Real-World AI Workflow
 
