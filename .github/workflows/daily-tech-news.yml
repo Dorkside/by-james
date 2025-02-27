@@ -1,0 +1,37 @@
+name: Daily Tech News Generation
+
+on:
+  schedule:
+    # Run at 2 AM UTC every day
+    - cron: '0 2 * * *'
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  generate-tech-news:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15  # Set a reasonable timeout
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Generate daily tech news
+        run: node scripts/generate-daily-news.js
+        env:
+          PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+          
+      - name: Commit and push if changes
+        run: |
+          git config --global user.name 'Tech News Bot'
+          git config --global user.email 'bot@example.com'
+          git add content/articles/
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Add daily tech news update [skip ci]" && git push) 
