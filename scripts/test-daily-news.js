@@ -75,10 +75,6 @@ async function generateTestNews() {
     console.log('model: sonar-deep-research');
     console.log('max_tokens: 2000');
     console.log('temperature: 0.1 (Lower temperature for more factual, deterministic responses)');
-    console.log('top_p: 0.9 (Slightly constrained sampling for more focused responses)');
-    console.log('presence_penalty: 0.1 (Slight penalty to avoid repetition)');
-    console.log('frequency_penalty: 0.1 (Slight penalty to encourage diverse vocabulary)');
-    console.log('search_options: { enable_search: true, include_citations: true }');
     console.log('-----------------------------------');
     
     // Create test news file using mock content

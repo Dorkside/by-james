@@ -8,6 +8,21 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Configuration
 const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
+
+// Check if API key is set
+if (!PERPLEXITY_API_KEY) {
+  console.error('Error: PERPLEXITY_API_KEY environment variable is not set');
+  process.exit(1);
+}
+
+// Log API key length and format (without revealing the key)
+console.log(`API key length: ${PERPLEXITY_API_KEY.length} characters`);
+if (PERPLEXITY_API_KEY.startsWith('pplx-')) {
+  console.log('API key has the expected prefix format');
+} else {
+  console.warn('Warning: API key does not start with the expected prefix "pplx-"');
+}
+
 const PERPLEXITY_API_URL = 'https://api.perplexity.ai/chat/completions';
 
 // Format date for filename and frontmatter
@@ -23,38 +38,38 @@ async function queryPerplexityForNews() {
   try {
     console.log('Querying Perplexity API for daily news...');
     
+    // Create the request body with minimal required parameters
+    const requestBody = {
+      model: "sonar-deep-research",
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert tech industry analyst with deep knowledge of web development, insurtech, and software legislation."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      max_tokens: 2000,
+      temperature: 0.1
+    };
+    
+    console.log('Using API request parameters:', JSON.stringify(requestBody, null, 2));
+    
     const response = await fetch(PERPLEXITY_API_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'accept': 'application/json',
+        'content-type': 'application/json',
         'Authorization': `Bearer ${PERPLEXITY_API_KEY}`
       },
-      body: JSON.stringify({
-        model: 'sonar-deep-research',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are an expert tech industry analyst with deep knowledge of web development, insurtech, and software legislation.'
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        max_tokens: 2000,
-        temperature: 0.1,         // Lower temperature for more factual, deterministic responses
-        top_p: 0.9,               // Slightly constrained sampling for more focused responses
-        presence_penalty: 0.1,    // Slight penalty to avoid repetition
-        frequency_penalty: 0.1,   // Slight penalty to encourage diverse vocabulary
-        search_options: {
-          enable_search: true,    // Explicitly enable search for research
-          include_citations: true // Include citations in the search results
-        }
-      })
+      body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`);
+      const errorText = await response.text();
+      throw new Error(`API request failed with status ${response.status}: ${errorText}`);
     }
 
     const data = await response.json();

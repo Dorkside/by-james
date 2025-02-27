@@ -13,10 +13,10 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
@@ -24,8 +24,37 @@ jobs:
       - name: Install dependencies
         run: npm ci
         
+      - name: Verify API key format
+        run: |
+          if [ -z "$PERPLEXITY_API_KEY" ]; then
+            echo "Error: PERPLEXITY_API_KEY is not set"
+            exit 1
+          fi
+          
+          # Check if the API key has the expected format (without revealing it)
+          KEY_LENGTH=${#PERPLEXITY_API_KEY}
+          echo "API key length: $KEY_LENGTH characters"
+          
+          # Check if it starts with expected prefix (adjust if needed)
+          if [[ $PERPLEXITY_API_KEY == pplx-* ]]; then
+            echo "API key has the expected prefix format"
+          else
+            echo "Warning: API key does not start with the expected prefix 'pplx-'"
+            echo "Please ensure you're using a valid Perplexity API key"
+          fi
+        env:
+          PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+        
       - name: Generate daily tech news
-        run: node scripts/generate-daily-news.js
+        id: generate_news
+        run: |
+          set -o pipefail
+          node scripts/generate-daily-news.js 2>&1 | tee news_generation.log
+          if [ ${PIPESTATUS[0]} -ne 0 ]; then
+            echo "::error::News generation failed. See log for details."
+            cat news_generation.log
+            exit 1
+          fi
         env:
           PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
           
