@@ -37,21 +37,19 @@ const formatDate = (date) => {
   return date.toISOString().split('T')[0]; // YYYY-MM-DD
 };
 
-// Make request to Perplexity API for daily news
+// Query Perplexity API for news content
 async function queryPerplexityForNews() {
-  // Get the prompt for daily news
-  const prompt = generateDailyNewsPrompt();
-
   try {
-    console.log('Querying Perplexity API for daily news...');
+    // Load the news prompt
+    const { generateDailyNewsPrompt } = await import('./news-prompt.js');
+    const prompt = generateDailyNewsPrompt();
     
-    // Define the JSON schema for structured output
+    // Define the JSON schema for news items
     const newsItemSchema = {
       type: "object",
       properties: {
         news_items: {
           type: "array",
-          description: "Array of news items",
           items: {
             type: "object",
             properties: {
@@ -61,22 +59,19 @@ async function queryPerplexityForNews() {
               },
               description: {
                 type: "string",
-                description: "A brief 1-2 sentence description of the news item"
+                description: "A brief description of the news item"
               },
               source_url: {
                 type: "string",
-                description: "The source URL for the news item from a reputable source"
+                description: "The URL of the source for this news item"
               },
               category: {
                 type: "string",
-                enum: ["JS/TS Web Development", "Insurtech", "Software Development Legislation"],
-                description: "The category of the news item"
+                description: "The category of the news item (JS/TS Web Development, Insurtech, or Software Development Legislation)"
               }
             },
             required: ["title", "description", "source_url", "category"]
-          },
-          minItems: 5,
-          maxItems: 5
+          }
         }
       },
       required: ["news_items"]
@@ -88,7 +83,7 @@ async function queryPerplexityForNews() {
       messages: [
         {
           role: "system",
-          content: "You are an expert tech industry analyst with deep knowledge of web development, insurtech, and software legislation."
+          content: "You are an expert tech industry analyst with deep knowledge of web development, insurtech, and software legislation. You MUST respond with valid JSON only, following the specified schema. Do not include any explanations, thinking process, or markdown formatting outside the JSON object."
         },
         {
           role: "user",
@@ -129,7 +124,19 @@ async function queryPerplexityForNews() {
     }
 
     const data = await response.json();
-    return data.choices[0].message.content;
+    
+    // Check if the response contains the expected structure
+    if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
+      console.error('Unexpected API response structure:', JSON.stringify(data));
+      throw new Error('Unexpected API response structure');
+    }
+    
+    const content = data.choices[0].message.content;
+    
+    // Log a preview of the content for debugging
+    console.log('API response content preview:', content.substring(0, 200) + (content.length > 200 ? '...' : ''));
+    
+    return content;
   } catch (error) {
     console.error('Error querying Perplexity API:', error);
     throw error;
@@ -153,20 +160,67 @@ function parseNewsContent(content) {
         const thinkEndPos = content.indexOf('</think>');
         if (thinkEndPos !== -1) {
           contentToParse = content.substring(thinkEndPos + 9).trim();
+          
+          // Try to find JSON object in the remaining content
+          const jsonObjectMatch = contentToParse.match(/\{[\s\S]*\}/);
+          if (jsonObjectMatch) {
+            contentToParse = jsonObjectMatch[0];
+          }
+        }
+      } else {
+        // Try to find any JSON object in the content
+        const jsonObjectMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonObjectMatch) {
+          console.log('Found JSON object in content');
+          contentToParse = jsonObjectMatch[0];
+        }
+      }
+      
+      // Additional fallback: Look for news_items array pattern
+      if (contentToParse.includes('"news_items"')) {
+        const newsItemsMatch = contentToParse.match(/\{"news_items"[\s\S]*\}/);
+        if (newsItemsMatch) {
+          console.log('Found news_items pattern in content');
+          contentToParse = newsItemsMatch[0];
         }
       }
     }
     
-    // Parse the JSON content
-    const newsData = JSON.parse(contentToParse);
-    
-    // Validate the structure
-    if (!newsData.news_items || !Array.isArray(newsData.news_items) || newsData.news_items.length === 0) {
-      throw new Error('Invalid news data structure: missing or empty news_items array');
+    // Try to parse the JSON content
+    try {
+      const newsData = JSON.parse(contentToParse);
+      
+      // Validate the structure
+      if (!newsData.news_items || !Array.isArray(newsData.news_items) || newsData.news_items.length === 0) {
+        throw new Error('Invalid news data structure: missing or empty news_items array');
+      }
+      
+      console.log(`Successfully parsed ${newsData.news_items.length} news items`);
+      return newsData;
+    } catch (jsonError) {
+      console.error('JSON parsing error:', jsonError);
+      
+      // Last resort: Try to extract a valid JSON structure manually
+      console.log('Attempting to extract JSON structure manually...');
+      
+      // Look for news_items array pattern
+      const newsItemsMatch = content.match(/"news_items"\s*:\s*\[([\s\S]*?)\]/);
+      if (newsItemsMatch) {
+        const newsItemsArray = newsItemsMatch[0];
+        const manualJson = `{${newsItemsArray}}`;
+        
+        try {
+          const manualData = JSON.parse(manualJson);
+          console.log(`Successfully parsed ${manualData.news_items.length} news items manually`);
+          return manualData;
+        } catch (manualError) {
+          console.error('Manual JSON parsing failed:', manualError);
+          throw new Error('Failed to parse news content after multiple attempts');
+        }
+      }
+      
+      throw new Error('Failed to extract valid JSON structure from response');
     }
-    
-    console.log(`Successfully parsed ${newsData.news_items.length} news items`);
-    return newsData;
   } catch (error) {
     console.error('Error parsing news content:', error);
     console.error('Raw content:', content);
