@@ -20,6 +20,12 @@
       <!-- Desktop Navigation -->
       <div class="hidden md:flex items-center space-x-8">
         <NuxtLink 
+          to="/" 
+          class="hover:text-accent-green dark:hover:text-accent-green-dark transition-colors"
+        >
+          Home
+        </NuxtLink>
+        <NuxtLink 
           to="/articles" 
           class="hover:text-accent-green dark:hover:text-accent-green-dark transition-colors"
         >
@@ -73,6 +79,13 @@
       v-show="isMenuOpen"
       class="md:hidden py-2 flex flex-col space-y-2 items-center transition-all duration-300 ease-in-out"
     >
+      <NuxtLink 
+        to="/" 
+        class="hover:text-accent-green dark:hover:text-accent-green-dark transition-colors w-full text-center py-1"
+        @click="isMenuOpen = false"
+      >
+        Home
+      </NuxtLink>
       <NuxtLink 
         to="/articles" 
         class="hover:text-accent-green dark:hover:text-accent-green-dark transition-colors w-full text-center py-1"

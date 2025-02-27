@@ -4,8 +4,6 @@
       <div class="flex flex-col lg:flex-row gap-8">
         <!-- Main content -->
         <div class="flex-1">
-          <h1 class="text-3xl font-bold mb-6">Latest Articles</h1>
-          
           <div v-if="pending" class="text-center py-8">
             <p>Loading articles...</p>
           </div>
@@ -15,19 +13,19 @@
           <div v-else-if="!articles || articles.length === 0" class="text-center py-8">
             <p>No articles found.</p>
           </div>
-          <div v-else class="space-y-12">
-            <div v-for="article in articles" :key="article._path" class="article-card">
+          <div v-else class="space-y-8">
+            <div v-for="article in articles" :key="article._path" class="article-card pb-6 border-b border-gray-200 dark:border-gray-700 last:border-0">
               <NuxtLink :to="article._path">
-                <h2 class="text-2xl font-bold hover:text-blue-600 transition-colors">{{ article.title }}</h2>
+                <h2 class="text-2xl font-bold text-accent-green hover:text-accent-green/80 dark:text-accent-green-dark dark:hover:text-accent-green-dark/80 transition-colors">{{ article.title }}</h2>
               </NuxtLink>
-              <div class="text-gray-500 mt-1 mb-3">{{ formatDate(article.date) }}</div>
-              <p class="text-gray-700 dark:text-gray-300 mb-4">{{ article.description }}</p>
-              <div class="flex flex-wrap gap-2">
-                <span v-for="tag in article.tags" :key="tag" class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-sm rounded">
+              <div class="text-primary-500 dark:text-primary-400 mt-1 mb-3">{{ formatDate(article.date) }}</div>
+              <p class="text-primary-700 dark:text-primary-100 mb-4">{{ article.description }}</p>
+              <div class="flex flex-wrap gap-2 mb-3">
+                <span v-for="tag in article.tags" :key="tag" class="px-2 py-1 bg-accent-green/10 dark:bg-accent-green-dark/10 text-sm rounded text-primary-700 dark:text-primary-200">
                   {{ tag }}
                 </span>
               </div>
-              <NuxtLink :to="article._path" class="text-blue-600 hover:underline mt-4 inline-block">
+              <NuxtLink :to="article._path" class="text-accent-green hover:text-accent-green/80 dark:text-accent-green-dark dark:hover:text-accent-green-dark/80 hover:underline text-sm inline-block">
                 Read more
               </NuxtLink>
             </div>

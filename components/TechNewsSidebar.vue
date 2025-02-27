@@ -1,6 +1,5 @@
 <template>
   <div class="tech-news-sidebar">
-    <h2 class="text-xl font-bold mb-4 text-accent-green dark:text-accent-green-dark">Latest Tech News</h2>
     <div v-if="loading" class="text-center py-4">
       <p>Loading tech news...</p>
     </div>
@@ -11,12 +10,12 @@
       <p>No tech news available.</p>
     </div>
     <div v-else class="tech-news-content">
-      <div class="mb-2 text-sm text-primary-700 dark:text-primary-200">
+      <div class="mb-3 text-sm text-primary-700 dark:text-primary-200 border-b border-accent-green/20 dark:border-accent-green-dark/20 pb-2">
         {{ formatDate(latestNews.date) }}
       </div>
       
       <ul class="space-y-4 text-sm">
-        <li v-for="(item, index) in newsItems" :key="index" class="pb-3 last:pb-0">
+        <li v-for="(item, index) in newsItems" :key="index" class="pb-3 last:pb-0 border-b border-accent-green/10 dark:border-accent-green-dark/10 last:border-0">
           <h3 class="font-semibold text-accent-green dark:text-accent-green-dark mb-1">{{ item[0] }}</h3>
           <p class="text-primary-700 dark:text-primary-100">{{ item[1] }}</p>
         </li>
