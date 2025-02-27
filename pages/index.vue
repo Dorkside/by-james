@@ -37,12 +37,6 @@
         <!-- Sidebar -->
         <div class="lg:w-80 shrink-0">
           <TechNewsSidebar />
-          
-          <div class="mt-8">
-            <NuxtLink to="/tech-news" class="text-blue-600 hover:underline">
-              View all tech news updates &rarr;
-            </NuxtLink>
-          </div>
         </div>
       </div>
     </div>

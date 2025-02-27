@@ -21,12 +21,6 @@
           <li v-for="(item, itemIndex) in section.items" :key="itemIndex" v-html="formatBulletPoint(item)"></li>
         </ul>
       </div>
-      
-      <div class="mt-4 text-right">
-        <NuxtLink :to="`/tech-news/${latestNews._path.split('/').pop()}`" class="text-sm text-accent-green hover:text-accent-green/80 dark:text-accent-green-dark dark:hover:text-accent-green-dark/80 hover:underline">
-          Read full update
-        </NuxtLink>
-      </div>
     </div>
   </div>
 </template>
