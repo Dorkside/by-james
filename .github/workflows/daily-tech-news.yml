@@ -10,6 +10,9 @@ jobs:
   generate-tech-news:
     runs-on: ubuntu-latest
     timeout-minutes: 15  # Set a reasonable timeout
+    # Add permissions for the GITHUB_TOKEN
+    permissions:
+      contents: write
     
     steps:
       - name: Checkout repository
@@ -66,7 +69,10 @@ jobs:
           
       - name: Commit and push if changes
         run: |
-          git config --global user.name 'Tech News Bot'
-          git config --global user.email 'bot@example.com'
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add content/tech-news/
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Add daily tech news update [skip ci]" && git push) 
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Add daily tech news update [skip ci]" && git push)
+        env:
+          # Use the built-in GITHUB_TOKEN for authentication
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
