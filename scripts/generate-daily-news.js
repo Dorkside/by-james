@@ -84,7 +84,7 @@ async function queryPerplexityForNews() {
     
     // Create the request body with structured output parameters
     const requestBody = {
-      model: "sonar-medium-online",
+      model: "sonar-deep-research",
       messages: [
         {
           role: "system",
@@ -99,7 +99,9 @@ async function queryPerplexityForNews() {
       temperature: 0.1,
       response_format: {
         type: "json_schema",
-        schema: newsItemSchema
+        json_schema: {
+          schema: newsItemSchema
+        }
       }
     };
     
@@ -107,7 +109,7 @@ async function queryPerplexityForNews() {
       ...requestBody,
       response_format: {
         type: "json_schema",
-        schema: "Schema included but not shown in logs for brevity"
+        json_schema: "Schema included but not shown in logs for brevity"
       }
     }, null, 2));
     
@@ -134,30 +136,51 @@ async function queryPerplexityForNews() {
   }
 }
 
-// Create news file
-async function createNewsFile(jsonContent) {
+// Parse news content from API response
+function parseNewsContent(content) {
   try {
-    const date = new Date();
-    const formattedDate = formatDate(date);
+    // Check if the content starts with <think> tag and extract the JSON part
+    let contentToParse = content;
+    if (typeof content === 'string') {
+      // If the response contains a <think> section, extract only the JSON part
+      const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
+      if (jsonMatch && jsonMatch[1]) {
+        console.log('Found JSON content inside markdown code block');
+        contentToParse = jsonMatch[1];
+      } else if (content.includes('<think>')) {
+        console.log('Response contains thinking process, extracting JSON part');
+        // Find the position after </think> tag
+        const thinkEndPos = content.indexOf('</think>');
+        if (thinkEndPos !== -1) {
+          contentToParse = content.substring(thinkEndPos + 9).trim();
+        }
+      }
+    }
     
     // Parse the JSON content
-    let newsData;
-    try {
-      // If it's a string, parse it; if it's already an object, use it directly
-      newsData = typeof jsonContent === 'string' ? JSON.parse(jsonContent) : jsonContent;
-      console.log(`Successfully parsed news data with ${newsData.news_items?.length || 0} items`);
-    } catch (parseError) {
-      console.error('Error parsing JSON content:', parseError);
-      console.error('Raw content:', jsonContent);
-      throw new Error('Failed to parse news content as JSON');
-    }
+    const newsData = JSON.parse(contentToParse);
     
     // Validate the structure
     if (!newsData.news_items || !Array.isArray(newsData.news_items) || newsData.news_items.length === 0) {
       throw new Error('Invalid news data structure: missing or empty news_items array');
     }
     
-    // Create frontmatter with special flags for tech news and include the JSON content
+    console.log(`Successfully parsed ${newsData.news_items.length} news items`);
+    return newsData;
+  } catch (error) {
+    console.error('Error parsing news content:', error);
+    console.error('Raw content:', content);
+    throw new Error('Failed to parse news content');
+  }
+}
+
+// Create news file
+async function createNewsFile(newsData) {
+  try {
+    const date = new Date();
+    const formattedDate = formatDate(date);
+    
+    // Create frontmatter with special flags for tech news
     const frontmatter = `---
 title: "Tech Industry Update: ${formattedDate}"
 description: "Daily news roundup covering the most important tech developments."
@@ -179,47 +202,26 @@ ${item.description}
 `).join('\n')}
 `;
     
-    // Create filename with date prefix
+    // Create filename
     const filename = `${formattedDate}-tech-industry-update.md`;
     
-    // Get the full path to the tech-news directory
+    // Ensure the tech-news directory exists
     const techNewsDir = path.join(__dirname, '..', 'content', 'tech-news');
-    
-    // Double-check that the directory exists
     if (!fs.existsSync(techNewsDir)) {
-      console.log(`Tech news directory doesn't exist, creating it: ${techNewsDir}`);
+      console.log(`Creating directory: ${techNewsDir}`);
       fs.mkdirSync(techNewsDir, { recursive: true });
     }
     
     // Save to tech-news directory
     const filePath = path.join(techNewsDir, filename);
     
-    console.log(`Writing news file to: ${filePath}`);
-    
     // Write to file
     fs.writeFileSync(filePath, frontmatter);
-    console.log(`Daily tech news update created: ${filename}`);
+    console.log(`Tech news file created: ${filename}`);
     
     return filename;
   } catch (error) {
     console.error('Error creating news file:', error);
-    console.error(`Current directory: ${process.cwd()}`);
-    console.error(`__dirname: ${__dirname}`);
-    
-    // List content directory to help debug
-    try {
-      const contentDir = path.join(__dirname, '..', 'content');
-      if (fs.existsSync(contentDir)) {
-        console.log(`Content directory exists at: ${contentDir}`);
-        console.log('Content directory contents:');
-        console.log(fs.readdirSync(contentDir));
-      } else {
-        console.error(`Content directory does not exist at: ${contentDir}`);
-      }
-    } catch (listError) {
-      console.error('Error listing content directory:', listError);
-    }
-    
     throw error;
   }
 }
@@ -247,9 +249,12 @@ async function generateDailyNews() {
     // Query Perplexity API
     const newsContent = await queryPerplexityForNews();
     
+    // Parse news content
+    const parsedNewsContent = parseNewsContent(newsContent);
+    
     // Create news file
     console.log('Creating news file...');
-    const filename = await createNewsFile(newsContent);
+    const filename = await createNewsFile(parsedNewsContent);
     
     console.log(`Daily news generation complete: ${filename}`);
   } catch (error) {
