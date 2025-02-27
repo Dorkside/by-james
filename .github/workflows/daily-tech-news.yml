@@ -24,6 +24,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
         
+      - name: Ensure directories exist
+        run: |
+          mkdir -p content/tech-news
+          echo "Created content/tech-news directory"
+          ls -la content/
+          
       - name: Verify API key format
         run: |
           if [ -z "$PERPLEXITY_API_KEY" ]; then

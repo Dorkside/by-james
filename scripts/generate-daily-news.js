@@ -9,6 +9,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Configuration
 const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
 
+// Ensure the tech-news directory exists
+const techNewsDir = path.join(__dirname, '..', 'content', 'tech-news');
+if (!fs.existsSync(techNewsDir)) {
+  console.log(`Creating directory: ${techNewsDir}`);
+  fs.mkdirSync(techNewsDir, { recursive: true });
+}
+
 // Check if API key is set
 if (!PERPLEXITY_API_KEY) {
   console.error('Error: PERPLEXITY_API_KEY environment variable is not set');
@@ -103,8 +110,19 @@ newsItems: ${jsonContent}
     // Create filename with date prefix
     const filename = `${formattedDate}-tech-industry-update.md`;
     
+    // Get the full path to the tech-news directory
+    const techNewsDir = path.join(__dirname, '..', 'content', 'tech-news');
+    
+    // Double-check that the directory exists
+    if (!fs.existsSync(techNewsDir)) {
+      console.log(`Tech news directory doesn't exist, creating it: ${techNewsDir}`);
+      fs.mkdirSync(techNewsDir, { recursive: true });
+    }
+    
     // Save to tech-news directory
-    const filePath = path.join(__dirname, '..', 'content', 'tech-news', filename);
+    const filePath = path.join(techNewsDir, filename);
+    
+    console.log(`Writing news file to: ${filePath}`);
     
     // Write to file
     fs.writeFileSync(filePath, frontmatter);
@@ -113,6 +131,23 @@ newsItems: ${jsonContent}
     return filename;
   } catch (error) {
     console.error('Error creating news file:', error);
+    console.error(`Current directory: ${process.cwd()}`);
+    console.error(`__dirname: ${__dirname}`);
+    
+    // List content directory to help debug
+    try {
+      const contentDir = path.join(__dirname, '..', 'content');
+      if (fs.existsSync(contentDir)) {
+        console.log(`Content directory exists at: ${contentDir}`);
+        console.log('Content directory contents:');
+        console.log(fs.readdirSync(contentDir));
+      } else {
+        console.error(`Content directory does not exist at: ${contentDir}`);
+      }
+    } catch (listError) {
+      console.error('Error listing content directory:', listError);
+    }
+    
     throw error;
   }
 }
@@ -121,6 +156,21 @@ newsItems: ${jsonContent}
 async function generateDailyNews() {
   try {
     console.log('Starting daily news generation...');
+    console.log(`Current working directory: ${process.cwd()}`);
+    
+    // Check if content directory exists
+    const contentDir = path.join(__dirname, '..', 'content');
+    if (!fs.existsSync(contentDir)) {
+      console.log(`Content directory doesn't exist, creating it: ${contentDir}`);
+      fs.mkdirSync(contentDir, { recursive: true });
+    }
+    
+    // Check if tech-news directory exists
+    const techNewsDir = path.join(contentDir, 'tech-news');
+    if (!fs.existsSync(techNewsDir)) {
+      console.log(`Tech news directory doesn't exist, creating it: ${techNewsDir}`);
+      fs.mkdirSync(techNewsDir, { recursive: true });
+    }
     
     // Query Perplexity API
     const newsContent = await queryPerplexityForNews();
