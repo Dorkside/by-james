@@ -2,11 +2,11 @@
   <div class="tech-news-index">
     <div class="max-w-3xl mx-auto px-4 py-8">
       <div class="mb-6">
-        <NuxtLink to="/" class="text-blue-600 hover:underline mb-4 inline-block">
+        <NuxtLink to="/" class="text-accent-green hover:text-accent-green/80 dark:text-accent-green-dark dark:hover:text-accent-green-dark/80 hover:underline mb-4 inline-block">
           &larr; Back to Home
         </NuxtLink>
-        <h1 class="text-3xl font-bold mt-2">Tech News Archive</h1>
-        <p class="text-gray-500 mt-2">Daily updates on web development, insurtech, and software legislation</p>
+        <h1 class="text-3xl font-bold mt-2 text-accent-green dark:text-accent-green-dark">Tech News Archive</h1>
+        <p class="text-primary-600 dark:text-primary-300 mt-2">Daily updates on web development, insurtech, and software legislation</p>
       </div>
       
       <div v-if="pending" class="text-center py-8">
@@ -21,17 +21,17 @@
       <div v-else class="space-y-8">
         <div v-for="news in techNews" :key="news._path" class="border-b border-gray-200 dark:border-gray-700 pb-8 last:border-0">
           <h2 class="text-2xl font-bold">
-            <NuxtLink :to="news._path" class="hover:text-blue-600">
+            <NuxtLink :to="news._path" class="text-accent-green hover:text-accent-green/80 dark:text-accent-green-dark dark:hover:text-accent-green-dark/80">
               {{ news.title }}
             </NuxtLink>
           </h2>
-          <div class="text-gray-500 mt-1 mb-4">{{ formatDate(news.date) }}</div>
+          <div class="text-primary-500 dark:text-primary-400 mt-1 mb-4">{{ formatDate(news.date) }}</div>
           
           <div class="prose dark:prose-invert max-w-none line-clamp-3">
             <p>{{ news.description }}</p>
           </div>
           
-          <NuxtLink :to="news._path" class="text-blue-600 hover:underline mt-4 inline-block">
+          <NuxtLink :to="news._path" class="text-accent-green hover:text-accent-green/80 dark:text-accent-green-dark dark:hover:text-accent-green-dark/80 hover:underline mt-4 inline-block">
             Read full update
           </NuxtLink>
         </div>
