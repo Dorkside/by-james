@@ -15,24 +15,30 @@ export function generateDailyNewsPrompt() {
   return `
     You are a tech industry analyst with expertise in web development, insurtech, and software legislation.
     
-    Research and provide the most important news from ${today} (or the most recent available if today's news isn't available yet) on these specific topics:
+    Research and provide the 5 most important and breaking tech news items from ${today} (or the most recent available if today's news isn't available yet) across these areas:
     
-    1. JS/TS Web Development: Focus on framework updates, new tools, significant releases, or emerging patterns
-    2. Insurtech: Focus on new technologies, startups, funding rounds, or regulatory changes affecting insurance technology
-    3. Software Development Legislation: Focus on new laws, regulations, court decisions, or policy changes affecting software developers
+    - JS/TS Web Development (framework updates, new tools, significant releases)
+    - Insurtech (new technologies, startups, funding rounds, regulatory changes)
+    - Software Development Legislation (new laws, regulations, court decisions, policy changes)
     
-    For each category:
-    - Provide exactly 5 bullet points
-    - Each bullet point should be 1-2 sentences maximum
+    Instructions:
+    - Select only the 5 most interesting/breaking news items across all categories combined
+    - Each news item should have a clear, concise title and a brief 1-2 sentence description
     - Include specific names, versions, amounts, or figures where relevant
     - Focus only on factual, verifiable news (not opinions or predictions)
-    - Prioritize the most impactful developments
-    - Include a source reference in parentheses at the end of each bullet point
     
-    Format your response as a Markdown document with a # title and three ## subheadings for each category.
-    The title should be "Tech Industry Update: [Today's Date]"
+    Format your response as a JSON array of arrays, where each inner array contains exactly two elements:
+    1. The title of the news item (as a string)
+    2. The content/description of the news item (as a string)
     
-    Do not include any introductory or concluding text - just the title, subheadings, and bullet points.
+    Example format:
+    [
+      ["Angular 17.2 Released", "The latest version includes improved hydration support and smaller bundle sizes, offering up to 30% faster initial load times for large applications."],
+      ["EU AI Act Formally Adopted", "The world's first comprehensive legal framework for artificial intelligence establishes tiered regulations based on risk levels, affecting how developers must design and deploy AI systems."],
+      // ... and so on
+    ]
+    
+    Do not include any introductory or concluding text - just the JSON array.
   `;
 }
 

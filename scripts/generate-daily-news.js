@@ -58,34 +58,33 @@ async function queryPerplexityForNews() {
 }
 
 // Create news file
-async function createNewsFile(markdownContent) {
+async function createNewsFile(jsonContent) {
   try {
     const date = new Date();
     const formattedDate = formatDate(date);
     
-    // Create frontmatter with special flags for tech news
+    // Create frontmatter with special flags for tech news and include the JSON content
     const frontmatter = `---
 title: "Tech Industry Update: ${formattedDate}"
-description: "Daily news roundup covering JS/TS web development, insurtech, and software development legislation."
+description: "Daily news roundup covering the most important tech developments."
 date: ${formattedDate}
 tags: ["news", "web-development", "insurtech", "legislation", "daily-update"]
 type: "tech-news"
 sidebar: true
+newsItems: ${jsonContent}
 ---
 
+# Tech Industry Update: ${formattedDate}
 `;
-
-    // Combine frontmatter and content
-    const fullContent = frontmatter + markdownContent;
     
     // Create filename with date prefix
     const filename = `${formattedDate}-tech-industry-update.md`;
     
-    // Save to tech-news directory instead of articles
+    // Save to tech-news directory
     const filePath = path.join(__dirname, '..', 'content', 'tech-news', filename);
     
     // Write to file
-    fs.writeFileSync(filePath, fullContent);
+    fs.writeFileSync(filePath, frontmatter);
     console.log(`Daily tech news update created: ${filename}`);
     
     return filename;

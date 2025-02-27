@@ -15,12 +15,12 @@
         {{ formatDate(latestNews.date) }}
       </div>
       
-      <div v-for="(section, index) in parsedSections" :key="index" class="mb-4">
-        <h3 class="font-semibold text-md mb-2 text-accent-green dark:text-accent-green-dark">{{ section.title }}</h3>
-        <ul class="list-disc list-inside space-y-2 text-sm text-primary-700 dark:text-primary-100">
-          <li v-for="(item, itemIndex) in section.items" :key="itemIndex" v-html="formatBulletPoint(item)"></li>
-        </ul>
-      </div>
+      <ul class="space-y-4 text-sm">
+        <li v-for="(item, index) in newsItems" :key="index" class="pb-3 last:pb-0">
+          <h3 class="font-semibold text-accent-green dark:text-accent-green-dark mb-1">{{ item[0] }}</h3>
+          <p class="text-primary-700 dark:text-primary-100">{{ item[1] }}</p>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
@@ -36,62 +36,23 @@ const { data: techNews, pending: loading, error } = await useAsyncData('techNews
 
 const latestNews = computed(() => techNews.value?.[0] || null);
 
-const parsedSections = computed(() => {
-  if (!latestNews.value || !latestNews.value.body) return [];
+// Parse the newsItems from the frontmatter
+const newsItems = computed(() => {
+  if (!latestNews.value || !latestNews.value.newsItems) return [];
   
-  const content = latestNews.value.body.children;
-  const sections = [];
-  let currentSection = null;
-  
-  for (const node of content) {
-    // Find h2 headings (section titles)
-    if (node.tag === 'h2') {
-      if (currentSection) {
-        sections.push(currentSection);
-      }
-      currentSection = {
-        title: node.children[0].value,
-        items: []
-      };
-    } 
-    // Find lists (bullet points)
-    else if (node.tag === 'ul' && currentSection) {
-      for (const listItem of node.children) {
-        if (listItem.tag === 'li') {
-          // Extract the text content from the list item
-          const itemText = extractTextFromNode(listItem);
-          currentSection.items.push(itemText);
-        }
-      }
+  try {
+    // If it's already an array, use it directly
+    if (Array.isArray(latestNews.value.newsItems)) {
+      return latestNews.value.newsItems;
     }
+    
+    // Otherwise, try to parse it as JSON
+    return JSON.parse(latestNews.value.newsItems);
+  } catch (e) {
+    console.error('Error parsing news items:', e);
+    return [];
   }
-  
-  if (currentSection) {
-    sections.push(currentSection);
-  }
-  
-  return sections;
 });
-
-// Helper function to extract text from a node
-function extractTextFromNode(node) {
-  if (!node.children) return '';
-  
-  return node.children.map(child => {
-    if (child.type === 'text') {
-      return child.value;
-    } else if (child.children) {
-      return extractTextFromNode(child);
-    }
-    return '';
-  }).join('');
-}
-
-// Format bullet points to highlight bold text
-function formatBulletPoint(text) {
-  // Replace **text** with <strong>text</strong>
-  return text.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-accent-green dark:text-accent-green-dark">$1</strong>');
-}
 
 // Format date for display
 function formatDate(dateString) {
