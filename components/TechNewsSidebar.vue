@@ -16,11 +16,11 @@
       
       <ul class="space-y-4 text-sm">
         <li v-for="(item, index) in newsItems" :key="index" class="pb-3 last:pb-0 border-b border-accent-green/10 dark:border-accent-green-dark/10 last:border-0">
-          <h3 class="font-semibold text-accent-green dark:text-accent-green-dark mb-1">{{ item[0] }}</h3>
-          <p class="text-primary-700 dark:text-primary-100 mb-1">{{ item[1] }}</p>
+          <h3 class="font-semibold text-accent-green dark:text-accent-green-dark mb-1">{{ item.title }}</h3>
+          <p class="text-primary-700 dark:text-primary-100 mb-1">{{ item.description }}</p>
           <a 
-            v-if="item[2]" 
-            :href="item[2]" 
+            v-if="item.source_url" 
+            :href="item.source_url" 
             target="_blank" 
             rel="noopener noreferrer" 
             class="text-xs text-accent-green/80 hover:text-accent-green dark:text-accent-green-dark/80 dark:hover:text-accent-green-dark hover:underline inline-flex items-center"
