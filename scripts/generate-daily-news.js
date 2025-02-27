@@ -98,7 +98,7 @@ async function queryPerplexityForNews() {
       max_tokens: 2000,
       temperature: 0.1,
       response_format: {
-        type: "json_object",
+        type: "json_schema",
         schema: newsItemSchema
       }
     };
@@ -106,7 +106,7 @@ async function queryPerplexityForNews() {
     console.log('Using API request parameters:', JSON.stringify({
       ...requestBody,
       response_format: {
-        type: "json_object",
+        type: "json_schema",
         schema: "Schema included but not shown in logs for brevity"
       }
     }, null, 2));
