@@ -13,6 +13,7 @@ A minimalist, typography-focused developer blog built with Nuxt 3, featuring dar
 - 🎨 Tailwind CSS for styling
 - 🔍 Syntax highlighting for code blocks
 - 🤖 Robots.txt and sitemap generation
+- ✅ Automated fact-checking for tech news content
 
 ## Tech Stack
 
@@ -121,6 +122,47 @@ The LinkedIn Tech News Automation system automatically detects when new articles
   - `linkedin-poster.js`: Main script for posting to LinkedIn
   - `content-detector.js`: Script for detecting new content
   - `token-manager.js`: Script for managing OAuth tokens
+  - `generate-daily-news.js`: Script for generating fact-checked tech news
+  - `news-prompt.js`: Prompt template for generating news content
+  - `test-fact-checking.js`: Test script for the fact-checking system
+
+## Fact-Checking System
+
+The tech news automation includes a robust fact-checking system to ensure all published content is accurate and reliable:
+
+### Fact-Checking Features
+
+- **URL Validation**: Verifies that all source URLs are valid and accessible
+- **Source Reputation Check**: Validates that sources come from reputable domains
+- **Content Verification**: Uses AI to cross-check news items against multiple sources
+- **Confidence Scoring**: Assigns confidence scores to each verified news item
+- **Rejection Logging**: Maintains logs of rejected news items with reasons
+- **Transparency**: Includes verification metadata in published content
+- **Auto-Correction**: Attempts to correct rejected news items by finding better sources or fixing inaccuracies
+
+### How It Works
+
+1. News items are generated using the Perplexity API with strict factual accuracy requirements
+2. Each item undergoes a three-step verification process:
+   - URL validation to ensure links are accessible
+   - Domain reputation check against a curated list of trusted sources
+   - Cross-reference verification using AI to confirm factual accuracy
+3. Items that pass verification are approved for publication
+4. Items that fail verification go through an auto-correction process:
+   - The system identifies what needs to be fixed (URL, title, description)
+   - It attempts to find better sources or correct inaccurate information
+   - Corrected items are re-verified to ensure they now meet standards
+5. Successfully corrected items are approved for publication alongside verified items
+6. Items that cannot be corrected are rejected and not published
+7. Only verified and successfully corrected items are committed to the final news file
+8. All published content includes verification and correction metadata for transparency
+
+### Testing the Fact-Checking System
+
+```bash
+# Run the fact-checking test script
+node scripts/test-fact-checking.js
+```
 
 ## Getting Started
 

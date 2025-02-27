@@ -32,6 +32,15 @@ export function generateDailyNewsPrompt() {
     - Verify that source URLs are valid and point directly to the relevant information
     - Assign each news item to one of the three categories mentioned above
     
+    IMPORTANT FACTUAL ACCURACY REQUIREMENTS:
+    - Only include news that can be verified from multiple reputable sources
+    - Ensure all URLs point to legitimate news sources or official company/organization websites
+    - Double-check that the URLs actually contain the information mentioned in your description
+    - Do not fabricate or exaggerate news items - stick strictly to verifiable facts
+    - If you're unsure about the accuracy of a news item, exclude it
+    - Avoid using URLs from content aggregators or low-quality news sites
+    - For each item, ensure the source URL directly supports the specific claim made
+    
     Your response will be formatted according to a JSON schema with the following structure:
     {
       "news_items": [

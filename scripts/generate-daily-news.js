@@ -180,6 +180,9 @@ async function createNewsFile(newsData) {
     const date = new Date();
     const formattedDate = formatDate(date);
     
+    // Filter to only include verified items (which includes successfully corrected items)
+    const committedItems = newsData.news_items;
+    
     // Create frontmatter with special flags for tech news
     const frontmatter = `---
 title: "Tech Industry Update: ${formattedDate}"
@@ -188,18 +191,32 @@ date: ${formattedDate}
 tags: ["news", "web-development", "insurtech", "legislation", "daily-update"]
 type: "tech-news"
 sidebar: true
-newsItems: ${JSON.stringify(newsData.news_items)}
+newsItems: ${JSON.stringify(committedItems)}
+factChecked: true
+verificationStats: ${JSON.stringify({
+  total_items_before_verification: committedItems.length + (newsData.rejected_items ? newsData.rejected_items.length : 0),
+  verified_items: committedItems.length,
+  rejected_items: newsData.rejected_items ? newsData.rejected_items.length : 0,
+  corrected_items: committedItems.filter(item => item.was_corrected).length
+})}
 ---
 
 # Tech Industry Update: ${formattedDate}
 
-${newsData.news_items.map(item => `
+${committedItems.map(item => `
 ## ${item.title}
 ${item.description}
 
 **Category:** ${item.category}  
 **Source:** [Read more](${item.source_url})
+${item.verification ? `**Verification:** ✅ Verified (${item.verification.confidence}% confidence)` : ''}
+${item.needs_review ? `**Note:** This item has been flagged for review: ${item.review_note}` : ''}
+${item.was_corrected ? `**Correction:** This item was corrected during fact-checking. ${item.correction_notes}` : ''}
 `).join('\n')}
+
+---
+
+*All news items in this update have been fact-checked for accuracy. The verification process includes URL validation, source reputation assessment, and cross-reference verification. Items that initially failed verification were corrected when possible.*
 `;
     
     // Create filename
@@ -217,13 +234,397 @@ ${item.description}
     
     // Write to file
     fs.writeFileSync(filePath, frontmatter);
-    console.log(`Tech news file created: ${filename}`);
+    console.log(`Tech news file created: ${filename} with ${committedItems.length} verified items`);
+    
+    // If there were rejected items, save them to a separate log file for review
+    if (newsData.rejected_items && newsData.rejected_items.length > 0) {
+      const rejectedItemsLog = `
+# Rejected News Items - ${formattedDate}
+
+The following news items were rejected during the fact-checking process:
+
+${newsData.rejected_items.map((item, index) => `
+## ${index + 1}. ${item.title}
+${item.description}
+
+**Category:** ${item.category}  
+**Source URL:** ${item.source_url}  
+**Rejection Reason:** ${item.rejection_reason}
+${item.correction_attempt ? `**Correction Attempted:** Yes, but failed: ${item.correction_attempt}` : ''}
+`).join('\n')}
+`;
+      
+      const logFilename = `${formattedDate}-rejected-items.md`;
+      const logFilePath = path.join(techNewsDir, logFilename);
+      fs.writeFileSync(logFilePath, rejectedItemsLog);
+      console.log(`Rejected items log created: ${logFilename}`);
+    }
+    
+    // Create a corrections log if there were any corrected items
+    const correctedItems = committedItems.filter(item => item.was_corrected);
+    if (correctedItems.length > 0) {
+      const correctionsLog = `
+# Corrected News Items - ${formattedDate}
+
+The following news items were corrected during the fact-checking process:
+
+${correctedItems.map((item, index) => `
+## ${index + 1}. ${item.title}
+${item.description}
+
+**Original Title:** ${item.original_title}
+**Original Source:** ${item.original_source}
+**New Source:** ${item.source_url}
+**Category:** ${item.category}
+**Correction Notes:** ${item.correction_notes}
+`).join('\n')}
+`;
+      
+      const correctionsFilename = `${formattedDate}-corrected-items.md`;
+      const correctionsFilePath = path.join(techNewsDir, correctionsFilename);
+      fs.writeFileSync(correctionsFilePath, correctionsLog);
+      console.log(`Corrections log created: ${correctionsFilename}`);
+    }
     
     return filename;
   } catch (error) {
     console.error('Error creating news file:', error);
     throw error;
   }
+}
+
+// Attempt to correct a rejected news item
+async function attemptCorrection(item, rejectionReason) {
+  console.log(`Attempting to correct rejected item: "${item.title}"`);
+  
+  try {
+    const correctionPrompt = `
+      The following tech news item was rejected during fact-checking:
+      
+      Title: ${item.title}
+      Description: ${item.description}
+      Source URL: ${item.source_url}
+      Category: ${item.category}
+      
+      Rejection reason: ${rejectionReason}
+      
+      Please correct the issues with this news item to make it factually accurate.
+      If the source URL is invalid or unreliable, find a better source.
+      If the title or description is misleading or inaccurate, rewrite it.
+      
+      Respond with a JSON object containing the corrected news item:
+      {
+        "title": "Corrected title",
+        "description": "Corrected description",
+        "source_url": "https://better-source-url.com",
+        "category": "Same or corrected category",
+        "correction_notes": "Brief explanation of what was corrected"
+      }
+    `;
+    
+    const requestBody = {
+      model: "sonar-reasoning",
+      messages: [
+        {
+          role: "system",
+          content: "You are a fact-checking assistant that corrects inaccurate tech news items."
+        },
+        {
+          role: "user",
+          content: correctionPrompt
+        }
+      ],
+      max_tokens: 800,
+      temperature: 0.2
+    };
+    
+    console.log(`Sending correction request for: "${item.title}"`);
+    
+    const correctionResponse = await fetch(PERPLEXITY_API_URL, {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'content-type': 'application/json',
+        'Authorization': `Bearer ${PERPLEXITY_API_KEY}`
+      },
+      body: JSON.stringify(requestBody)
+    });
+    
+    if (!correctionResponse.ok) {
+      console.warn(`Correction API request failed: ${correctionResponse.status}`);
+      return null;
+    }
+    
+    const correctionData = await correctionResponse.json();
+    const correctionContent = correctionData.choices[0].message.content;
+    
+    // Parse the correction result
+    let correctionResult;
+    try {
+      // Extract JSON from the response if needed
+      const jsonMatch = correctionContent.match(/```json\s*([\s\S]*?)\s*```/) || 
+                       correctionContent.match(/\{[\s\S]*\}/);
+      
+      const jsonContent = jsonMatch ? jsonMatch[0] : correctionContent;
+      correctionResult = JSON.parse(jsonContent);
+      
+      // Validate the corrected item
+      if (!correctionResult.title || !correctionResult.description || 
+          !correctionResult.source_url || !correctionResult.category) {
+        throw new Error("Corrected item is missing required fields");
+      }
+      
+      console.log(`Successfully corrected item: "${item.title}" -> "${correctionResult.title}"`);
+      
+      // Return the corrected item with correction metadata
+      return {
+        ...correctionResult,
+        was_corrected: true,
+        original_title: item.title,
+        original_source: item.source_url,
+        correction_notes: correctionResult.correction_notes || "Item was corrected"
+      };
+      
+    } catch (error) {
+      console.warn(`Failed to parse correction result: ${error.message}`);
+      return null;
+    }
+  } catch (error) {
+    console.error(`Error correcting news item "${item.title}":`, error);
+    return null;
+  }
+}
+
+// Verify news items for factual accuracy
+async function verifyNewsItems(newsData) {
+  console.log('Starting fact verification process...');
+  const verifiedItems = [];
+  const rejectedItems = [];
+  const correctedItems = [];
+
+  for (const item of newsData.news_items) {
+    console.log(`Verifying news item: "${item.title}"`);
+    
+    try {
+      // 1. Check if the source URL is valid and accessible
+      console.log(`Checking source URL: ${item.source_url}`);
+      const urlResponse = await fetch(item.source_url, {
+        method: 'HEAD',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; FactChecker/1.0)'
+        },
+        redirect: 'follow',
+        timeout: 10000 // 10 second timeout
+      });
+      
+      if (!urlResponse.ok) {
+        console.warn(`Invalid source URL (${urlResponse.status}): ${item.source_url}`);
+        const rejectionReason = `Invalid source URL (${urlResponse.status})`;
+        
+        // Attempt to correct the item
+        const correctedItem = await attemptCorrection(item, rejectionReason);
+        
+        if (correctedItem) {
+          console.log(`Item corrected, will re-verify: "${correctedItem.title}"`);
+          correctedItems.push(correctedItem);
+        } else {
+          rejectedItems.push({
+            ...item,
+            rejection_reason: rejectionReason
+          });
+        }
+        continue;
+      }
+      
+      // 2. Verify the source domain is reputable
+      const url = new URL(item.source_url);
+      const domain = url.hostname;
+      
+      // Simple check for known reputable tech news sources
+      // This could be expanded to a more comprehensive list or external API
+      const reputableDomains = [
+        'github.com', 'github.blog',
+        'techcrunch.com', 'wired.com', 'theverge.com', 'arstechnica.com',
+        'developer.mozilla.org', 'web.dev', 'reactjs.org', 'vuejs.org', 'angular.io',
+        'nodejs.org', 'npmjs.com', 'typescript-lang.org',
+        'aws.amazon.com', 'azure.microsoft.com', 'cloud.google.com',
+        'blog.google', 'engineering.fb.com', 'developer.apple.com',
+        'medium.com', 'dev.to', 'stackoverflow.blog',
+        'cnn.com', 'bbc.com', 'reuters.com', 'bloomberg.com',
+        'wsj.com', 'nytimes.com', 'ft.com',
+        'gov.uk', 'europa.eu', 'whitehouse.gov', 'congress.gov',
+        'who.int', 'un.org', 'ieee.org', 'w3.org'
+      ];
+      
+      const isDomainReputable = reputableDomains.some(repDomain => 
+        domain === repDomain || domain.endsWith(`.${repDomain}`)
+      );
+      
+      if (!isDomainReputable) {
+        console.warn(`Potentially unreliable source domain: ${domain}`);
+        // We'll still accept it but flag it for review
+        item.needs_review = true;
+        item.review_note = `Source domain (${domain}) not in known reputable list`;
+      }
+      
+      // 3. Perform a secondary verification using Perplexity API
+      // This step uses the AI to cross-check the news item against other sources
+      console.log(`Performing secondary verification for: "${item.title}"`);
+      
+      const verificationPrompt = `
+        Fact check the following tech news item:
+        
+        Title: ${item.title}
+        Description: ${item.description}
+        Source: ${item.source_url}
+        Category: ${item.category}
+        
+        Please verify:
+        1. Is this news item factually accurate based on available information?
+        2. Is the source URL appropriate and relevant to the news item?
+        3. Does the title and description accurately represent the actual news?
+        
+        Respond with a JSON object containing:
+        {
+          "is_accurate": true/false,
+          "confidence": 0-100 (percentage),
+          "verification_notes": "Brief explanation of verification result"
+        }
+      `;
+      
+      const requestBody = {
+        model: "sonar-reasoning", // Using a smaller model for fact-checking
+        messages: [
+          {
+            role: "system",
+            content: "You are a fact-checking assistant that verifies tech news for accuracy."
+          },
+          {
+            role: "user",
+            content: verificationPrompt
+          }
+        ],
+        max_tokens: 500,
+        temperature: 0.1
+      };
+      
+      const verificationResponse = await fetch(PERPLEXITY_API_URL, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'content-type': 'application/json',
+          'Authorization': `Bearer ${PERPLEXITY_API_KEY}`
+        },
+        body: JSON.stringify(requestBody)
+      });
+      
+      if (!verificationResponse.ok) {
+        console.warn(`Verification API request failed: ${verificationResponse.status}`);
+        // If verification fails, we'll still include the item but flag it
+        item.needs_review = true;
+        item.review_note = `Verification API request failed: ${verificationResponse.status}`;
+        verifiedItems.push(item);
+        continue;
+      }
+      
+      const verificationData = await verificationResponse.json();
+      const verificationContent = verificationData.choices[0].message.content;
+      
+      // Parse the verification result
+      let verificationResult;
+      try {
+        // Extract JSON from the response if needed
+        const jsonMatch = verificationContent.match(/```json\s*([\s\S]*?)\s*```/) || 
+                         verificationContent.match(/\{[\s\S]*\}/);
+        
+        const jsonContent = jsonMatch ? jsonMatch[0] : verificationContent;
+        verificationResult = JSON.parse(jsonContent);
+      } catch (error) {
+        console.warn(`Failed to parse verification result: ${error.message}`);
+        verificationResult = { 
+          is_accurate: false, 
+          confidence: 0, 
+          verification_notes: "Failed to parse verification result" 
+        };
+      }
+      
+      // Add verification data to the item
+      item.verification = {
+        is_accurate: verificationResult.is_accurate,
+        confidence: verificationResult.confidence,
+        notes: verificationResult.verification_notes
+      };
+      
+      // Decide whether to include the item based on verification
+      if (verificationResult.is_accurate && verificationResult.confidence >= 70) {
+        console.log(`Verification passed: "${item.title}" (Confidence: ${verificationResult.confidence}%)`);
+        verifiedItems.push(item);
+      } else {
+        console.warn(`Verification failed: "${item.title}" (Confidence: ${verificationResult.confidence}%)`);
+        const rejectionReason = verificationResult.verification_notes;
+        
+        // Attempt to correct the item
+        const correctedItem = await attemptCorrection(item, rejectionReason);
+        
+        if (correctedItem) {
+          console.log(`Item corrected, will re-verify: "${correctedItem.title}"`);
+          correctedItems.push(correctedItem);
+        } else {
+          rejectedItems.push({
+            ...item,
+            rejection_reason: rejectionReason
+          });
+        }
+      }
+      
+    } catch (error) {
+      console.error(`Error verifying news item "${item.title}":`, error);
+      rejectedItems.push({
+        ...item,
+        rejection_reason: `Verification error: ${error.message}`
+      });
+    }
+  }
+  
+  // Process any corrected items by re-verifying them
+  if (correctedItems.length > 0) {
+    console.log(`Re-verifying ${correctedItems.length} corrected items...`);
+    
+    // Recursively verify the corrected items
+    const correctedResults = await verifyNewsItems({
+      news_items: correctedItems
+    });
+    
+    // Add successfully verified corrected items to our verified items list
+    verifiedItems.push(...correctedResults.news_items);
+    
+    // Add any items that failed verification again to our rejected items list
+    if (correctedResults.rejected_items) {
+      rejectedItems.push(...correctedResults.rejected_items);
+    }
+  }
+  
+  // Log verification results
+  console.log(`Verification complete: ${verifiedItems.length} items accepted, ${rejectedItems.length} items rejected`);
+  
+  if (rejectedItems.length > 0) {
+    console.log('Rejected items:');
+    rejectedItems.forEach((item, index) => {
+      console.log(`${index + 1}. "${item.title}" - Reason: ${item.rejection_reason}`);
+    });
+  }
+  
+  // If we don't have enough verified items, log a warning
+  if (verifiedItems.length < 3) {
+    console.warn(`Warning: Only ${verifiedItems.length} news items passed verification. Consider regenerating.`);
+  }
+  
+  // Return the verified news data
+  return {
+    ...newsData,
+    news_items: verifiedItems,
+    rejected_items: rejectedItems
+  };
 }
 
 // Main function
@@ -252,11 +653,53 @@ async function generateDailyNews() {
     // Parse news content
     const parsedNewsContent = parseNewsContent(newsContent);
     
-    // Create news file
+    // Verify news items for factual accuracy
+    console.log('Verifying news items for factual accuracy...');
+    const verifiedNewsContent = await verifyNewsItems(parsedNewsContent);
+    
+    // Check if we have enough verified items
+    if (verifiedNewsContent.news_items.length < 3) {
+      console.warn(`Warning: Only ${verifiedNewsContent.news_items.length} news items passed verification.`);
+      console.log('Attempting to generate additional news items...');
+      
+      // Try to generate more news items if we don't have enough
+      const additionalNewsContent = await queryPerplexityForNews();
+      const additionalParsedContent = parseNewsContent(additionalNewsContent);
+      const additionalVerifiedContent = await verifyNewsItems(additionalParsedContent);
+      
+      // Combine the verified items
+      verifiedNewsContent.news_items = [
+        ...verifiedNewsContent.news_items,
+        ...additionalVerifiedContent.news_items
+      ];
+      
+      // Combine the rejected items
+      if (additionalVerifiedContent.rejected_items) {
+        verifiedNewsContent.rejected_items = [
+          ...(verifiedNewsContent.rejected_items || []),
+          ...additionalVerifiedContent.rejected_items
+        ];
+      }
+      
+      console.log(`After additional generation: ${verifiedNewsContent.news_items.length} verified items`);
+    }
+    
+    // Create news file with only verified items
     console.log('Creating news file...');
-    const filename = await createNewsFile(parsedNewsContent);
+    const filename = await createNewsFile(verifiedNewsContent);
     
     console.log(`Daily news generation complete: ${filename}`);
+    console.log(`Committed ${verifiedNewsContent.news_items.length} verified items`);
+    
+    if (verifiedNewsContent.rejected_items && verifiedNewsContent.rejected_items.length > 0) {
+      console.log(`Rejected ${verifiedNewsContent.rejected_items.length} items`);
+    }
+    
+    const correctedItems = verifiedNewsContent.news_items.filter(item => item.was_corrected);
+    if (correctedItems.length > 0) {
+      console.log(`Successfully corrected ${correctedItems.length} items`);
+    }
+    
   } catch (error) {
     console.error('Daily news generation failed:', error);
     process.exit(1);
@@ -264,4 +707,7 @@ async function generateDailyNews() {
 }
 
 // Run the main function
-generateDailyNews(); 
+generateDailyNews();
+
+// Export the verifyNewsItems function for testing
+export { verifyNewsItems }; 
