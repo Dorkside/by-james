@@ -45,9 +45,46 @@ async function queryPerplexityForNews() {
   try {
     console.log('Querying Perplexity API for daily news...');
     
-    // Create the request body with minimal required parameters
+    // Define the JSON schema for structured output
+    const newsItemSchema = {
+      type: "object",
+      properties: {
+        news_items: {
+          type: "array",
+          description: "Array of news items",
+          items: {
+            type: "object",
+            properties: {
+              title: {
+                type: "string",
+                description: "The title of the news item"
+              },
+              description: {
+                type: "string",
+                description: "A brief 1-2 sentence description of the news item"
+              },
+              source_url: {
+                type: "string",
+                description: "The source URL for the news item from a reputable source"
+              },
+              category: {
+                type: "string",
+                enum: ["JS/TS Web Development", "Insurtech", "Software Development Legislation"],
+                description: "The category of the news item"
+              }
+            },
+            required: ["title", "description", "source_url", "category"]
+          },
+          minItems: 5,
+          maxItems: 5
+        }
+      },
+      required: ["news_items"]
+    };
+    
+    // Create the request body with structured output parameters
     const requestBody = {
-      model: "sonar-deep-research",
+      model: "sonar-medium-online",
       messages: [
         {
           role: "system",
@@ -59,10 +96,20 @@ async function queryPerplexityForNews() {
         }
       ],
       max_tokens: 2000,
-      temperature: 0.1
+      temperature: 0.1,
+      response_format: {
+        type: "json_object",
+        schema: newsItemSchema
+      }
     };
     
-    console.log('Using API request parameters:', JSON.stringify(requestBody, null, 2));
+    console.log('Using API request parameters:', JSON.stringify({
+      ...requestBody,
+      response_format: {
+        type: "json_object",
+        schema: "Schema included but not shown in logs for brevity"
+      }
+    }, null, 2));
     
     const response = await fetch(PERPLEXITY_API_URL, {
       method: 'POST',
@@ -93,6 +140,23 @@ async function createNewsFile(jsonContent) {
     const date = new Date();
     const formattedDate = formatDate(date);
     
+    // Parse the JSON content
+    let newsData;
+    try {
+      // If it's a string, parse it; if it's already an object, use it directly
+      newsData = typeof jsonContent === 'string' ? JSON.parse(jsonContent) : jsonContent;
+      console.log(`Successfully parsed news data with ${newsData.news_items?.length || 0} items`);
+    } catch (parseError) {
+      console.error('Error parsing JSON content:', parseError);
+      console.error('Raw content:', jsonContent);
+      throw new Error('Failed to parse news content as JSON');
+    }
+    
+    // Validate the structure
+    if (!newsData.news_items || !Array.isArray(newsData.news_items) || newsData.news_items.length === 0) {
+      throw new Error('Invalid news data structure: missing or empty news_items array');
+    }
+    
     // Create frontmatter with special flags for tech news and include the JSON content
     const frontmatter = `---
 title: "Tech Industry Update: ${formattedDate}"
@@ -101,10 +165,18 @@ date: ${formattedDate}
 tags: ["news", "web-development", "insurtech", "legislation", "daily-update"]
 type: "tech-news"
 sidebar: true
-newsItems: ${jsonContent}
+newsItems: ${JSON.stringify(newsData.news_items)}
 ---
 
 # Tech Industry Update: ${formattedDate}
+
+${newsData.news_items.map(item => `
+## ${item.title}
+${item.description}
+
+**Category:** ${item.category}  
+**Source:** [Read more](${item.source_url})
+`).join('\n')}
 `;
     
     // Create filename with date prefix

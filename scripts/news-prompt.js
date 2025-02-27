@@ -30,20 +30,20 @@ export function generateDailyNewsPrompt() {
     - Prioritize official sources (company blogs, government sites) over secondary reporting
     - Ensure all information is accurate and from the most recent reliable sources
     - Verify that source URLs are valid and point directly to the relevant information
+    - Assign each news item to one of the three categories mentioned above
     
-    Format your response as a JSON array of arrays, where each inner array contains exactly three elements:
-    1. The title of the news item (as a string)
-    2. The content/description of the news item (as a string)
-    3. The source URL for the news item (as a string)
-    
-    Example format:
-    [
-      ["Angular 17.2 Released", "The latest version includes improved hydration support and smaller bundle sizes, offering up to 30% faster initial load times for large applications.", "https://blog.angular.io/angular-v17-2-0-is-now-available-3c8d82fb875"],
-      ["EU AI Act Formally Adopted", "The world's first comprehensive legal framework for artificial intelligence establishes tiered regulations based on risk levels, affecting how developers must design and deploy AI systems.", "https://digital-strategy.ec.europa.eu/en/policies/european-approach-artificial-intelligence"],
-      // ... and so on
-    ]
-    
-    Do not include any introductory or concluding text - just the JSON array.
+    Your response will be formatted according to a JSON schema with the following structure:
+    {
+      "news_items": [
+        {
+          "title": "Title of the news item",
+          "description": "Brief description of the news item",
+          "source_url": "https://example.com/source",
+          "category": "JS/TS Web Development" // or "Insurtech" or "Software Development Legislation"
+        },
+        // ... 4 more items
+      ]
+    }
   `;
 }
 
