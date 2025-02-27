@@ -33,5 +33,5 @@ jobs:
         run: |
           git config --global user.name 'Tech News Bot'
           git config --global user.email 'bot@example.com'
-          git add content/articles/
+          git add content/tech-news/
           git diff --quiet && git diff --staged --quiet || (git commit -m "Add daily tech news update [skip ci]" && git push) 

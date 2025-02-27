@@ -63,12 +63,14 @@ async function createNewsFile(markdownContent) {
     const date = new Date();
     const formattedDate = formatDate(date);
     
-    // Create frontmatter
+    // Create frontmatter with special flags for tech news
     const frontmatter = `---
 title: "Tech Industry Update: ${formattedDate}"
 description: "Daily news roundup covering JS/TS web development, insurtech, and software development legislation."
 date: ${formattedDate}
 tags: ["news", "web-development", "insurtech", "legislation", "daily-update"]
+type: "tech-news"
+sidebar: true
 ---
 
 `;
@@ -78,11 +80,13 @@ tags: ["news", "web-development", "insurtech", "legislation", "daily-update"]
     
     // Create filename with date prefix
     const filename = `${formattedDate}-tech-industry-update.md`;
-    const filePath = path.join(__dirname, '..', 'content', 'articles', filename);
+    
+    // Save to tech-news directory instead of articles
+    const filePath = path.join(__dirname, '..', 'content', 'tech-news', filename);
     
     // Write to file
     fs.writeFileSync(filePath, fullContent);
-    console.log(`Daily news update created: ${filename}`);
+    console.log(`Daily tech news update created: ${filename}`);
     
     return filename;
   } catch (error) {

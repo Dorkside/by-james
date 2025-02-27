@@ -44,12 +44,14 @@ async function createTestNewsFile(markdownContent) {
     const date = new Date();
     const formattedDate = formatDate(date);
     
-    // Create frontmatter
+    // Create frontmatter with special flags for tech news
     const frontmatter = `---
 title: "Tech Industry Update: ${formattedDate}"
 description: "Daily news roundup covering JS/TS web development, insurtech, and software development legislation."
 date: ${formattedDate}
 tags: ["news", "web-development", "insurtech", "legislation", "daily-update"]
+type: "tech-news"
+sidebar: true
 ---
 
 `;
@@ -59,11 +61,13 @@ tags: ["news", "web-development", "insurtech", "legislation", "daily-update"]
     
     // Create filename with date prefix and TEST prefix
     const filename = `TEST-${formattedDate}-tech-industry-update.md`;
-    const filePath = path.join(__dirname, '..', 'content', 'articles', filename);
+    
+    // Save to tech-news directory instead of articles
+    const filePath = path.join(__dirname, '..', 'content', 'tech-news', filename);
     
     // Write to file
     fs.writeFileSync(filePath, fullContent);
-    console.log(`Test news file created: ${filename}`);
+    console.log(`Test tech news file created: ${filename}`);
     
     return filename;
   } catch (error) {
@@ -88,7 +92,7 @@ async function generateTestNews() {
     console.log('Creating test news file...');
     const filename = await createTestNewsFile(MOCK_NEWS);
     
-    console.log(`Test news generation complete: ${filename}`);
+    console.log(`Test tech news generation complete: ${filename}`);
     console.log('This is a test file and will not be committed to the repository.');
     console.log('You can manually delete it after reviewing.');
   } catch (error) {

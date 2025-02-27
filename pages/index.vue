@@ -1,57 +1,70 @@
 <template>
-  <div class="max-w-2xl mx-auto">
-    <!-- Hero Section -->
-    <div class="mb-24">
-      <h1 class="text-5xl font-title mb-6 text-primary-900 dark:text-white">Hi, I'm James</h1>
-      <p class="text-xl text-primary-700 dark:text-primary-100 leading-relaxed">
-        Welcome to my corner of the web where I document my software development journey. Here, I share practical insights from building production systems, explore technical challenges, and discuss the art of crafting meaningful solutions.
-      </p>
+  <div class="home-page">
+    <div class="max-w-5xl mx-auto">
+      <div class="flex flex-col lg:flex-row gap-8">
+        <!-- Main content -->
+        <div class="flex-1">
+          <h1 class="text-3xl font-bold mb-6">Latest Articles</h1>
+          
+          <div v-if="pending" class="text-center py-8">
+            <p>Loading articles...</p>
+          </div>
+          <div v-else-if="error" class="text-center py-8 text-red-500">
+            <p>Error loading articles: {{ error.message }}</p>
+          </div>
+          <div v-else-if="!articles || articles.length === 0" class="text-center py-8">
+            <p>No articles found.</p>
+          </div>
+          <div v-else class="space-y-12">
+            <div v-for="article in articles" :key="article._path" class="article-card">
+              <NuxtLink :to="article._path">
+                <h2 class="text-2xl font-bold hover:text-blue-600 transition-colors">{{ article.title }}</h2>
+              </NuxtLink>
+              <div class="text-gray-500 mt-1 mb-3">{{ formatDate(article.date) }}</div>
+              <p class="text-gray-700 dark:text-gray-300 mb-4">{{ article.description }}</p>
+              <div class="flex flex-wrap gap-2">
+                <span v-for="tag in article.tags" :key="tag" class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-sm rounded">
+                  {{ tag }}
+                </span>
+              </div>
+              <NuxtLink :to="article._path" class="text-blue-600 hover:underline mt-4 inline-block">
+                Read more
+              </NuxtLink>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="lg:w-80 shrink-0">
+          <TechNewsSidebar />
+          
+          <div class="mt-8">
+            <NuxtLink to="/tech-news" class="text-blue-600 hover:underline">
+              View all tech news updates &rarr;
+            </NuxtLink>
+          </div>
+        </div>
+      </div>
     </div>
-    
-    <!-- Latest Articles Section -->
-    <section class="mb-24">
-      <div class="flex items-center justify-between mb-12">
-        <h2 class="text-3xl font-title text-primary-900 dark:text-white">Latest Articles</h2>
-        <NuxtLink 
-          to="/articles" 
-          class="inline-flex items-center text-sm font-medium text-accent-green dark:text-accent-green-dark hover:text-accent-green/80 dark:hover:text-accent-green-dark/80 transition-colors group"
-        >
-          View all articles
-          <svg class="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" viewBox="0 0 16 16" fill="none">
-            <path d="M6 12l4-4-4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </NuxtLink>
-      </div>
-      <div class="space-y-12">
-        <ContentQuery path="/articles" :sort="{ date: -1 }" :limit="3" v-slot="{ data }">
-          <PostCard v-for="article in data" :key="article._path" :post="article" />
-        </ContentQuery>
-      </div>
-    </section>
-
-    <!-- Featured Projects Section -->
-    <section class="mb-24">
-      <div class="flex items-center justify-between mb-12">
-        <h2 class="text-3xl font-title text-primary-900 dark:text-white">Featured Projects</h2>
-        <NuxtLink 
-          to="/portfolio" 
-          class="inline-flex items-center text-sm font-medium text-accent-green dark:text-accent-green-dark hover:text-accent-green/80 dark:hover:text-accent-green-dark/80 transition-colors group"
-        >
-          View all projects
-          <svg class="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" viewBox="0 0 16 16" fill="none">
-            <path d="M6 12l4-4-4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </NuxtLink>
-      </div>
-      <div class="space-y-12">
-        <ContentQuery path="/portfolio" :where="{ featured: true }" v-slot="{ data }">
-          <ProjectCard v-for="project in data" :key="project._path" :project="project" />
-        </ContentQuery>
-      </div>
-    </section>
   </div>
 </template>
 
 <script setup>
-// Content is automatically fetched using ContentQuery components
+// Fetch articles using useAsyncData and queryContent
+const { data: articles, pending, error } = await useAsyncData('articles', () => 
+  queryContent('articles')
+    .sort({ date: -1 })
+    .limit(10)
+    .find()
+);
+
+// Format date for display
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+}
 </script>
