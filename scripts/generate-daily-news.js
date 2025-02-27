@@ -30,7 +30,7 @@ async function queryPerplexityForNews() {
         'Authorization': `Bearer ${PERPLEXITY_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'llama-3-sonar-large-32k-online',
+        model: 'sonar-deep-research',
         messages: [
           {
             role: 'system',
@@ -41,7 +41,15 @@ async function queryPerplexityForNews() {
             content: prompt
           }
         ],
-        max_tokens: 2000
+        max_tokens: 2000,
+        temperature: 0.1,         // Lower temperature for more factual, deterministic responses
+        top_p: 0.9,               // Slightly constrained sampling for more focused responses
+        presence_penalty: 0.1,    // Slight penalty to avoid repetition
+        frequency_penalty: 0.1,   // Slight penalty to encourage diverse vocabulary
+        search_options: {
+          enable_search: true,    // Explicitly enable search for research
+          include_citations: true // Include citations in the search results
+        }
       })
     });
 

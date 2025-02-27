@@ -17,7 +17,19 @@
       <ul class="space-y-4 text-sm">
         <li v-for="(item, index) in newsItems" :key="index" class="pb-3 last:pb-0 border-b border-accent-green/10 dark:border-accent-green-dark/10 last:border-0">
           <h3 class="font-semibold text-accent-green dark:text-accent-green-dark mb-1">{{ item[0] }}</h3>
-          <p class="text-primary-700 dark:text-primary-100">{{ item[1] }}</p>
+          <p class="text-primary-700 dark:text-primary-100 mb-1">{{ item[1] }}</p>
+          <a 
+            v-if="item[2]" 
+            :href="item[2]" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            class="text-xs text-accent-green/80 hover:text-accent-green dark:text-accent-green-dark/80 dark:hover:text-accent-green-dark hover:underline inline-flex items-center"
+          >
+            <span>Source</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
         </li>
       </ul>
     </div>

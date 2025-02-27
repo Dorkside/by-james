@@ -13,7 +13,7 @@ export function generateDailyNewsPrompt() {
   const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
   
   return `
-    You are a tech industry analyst with expertise in web development, insurtech, and software legislation.
+    You are an expert tech industry analyst with expertise in web development, insurtech, and software legislation.
     
     Research and provide the 5 most important and breaking tech news items from ${today} (or the most recent available if today's news isn't available yet) across these areas:
     
@@ -26,15 +26,20 @@ export function generateDailyNewsPrompt() {
     - Each news item should have a clear, concise title and a brief 1-2 sentence description
     - Include specific names, versions, amounts, or figures where relevant
     - Focus only on factual, verifiable news (not opinions or predictions)
+    - For each news item, include the most informative source URL from a reputable source
+    - Prioritize official sources (company blogs, government sites) over secondary reporting
+    - Ensure all information is accurate and from the most recent reliable sources
+    - Verify that source URLs are valid and point directly to the relevant information
     
-    Format your response as a JSON array of arrays, where each inner array contains exactly two elements:
+    Format your response as a JSON array of arrays, where each inner array contains exactly three elements:
     1. The title of the news item (as a string)
     2. The content/description of the news item (as a string)
+    3. The source URL for the news item (as a string)
     
     Example format:
     [
-      ["Angular 17.2 Released", "The latest version includes improved hydration support and smaller bundle sizes, offering up to 30% faster initial load times for large applications."],
-      ["EU AI Act Formally Adopted", "The world's first comprehensive legal framework for artificial intelligence establishes tiered regulations based on risk levels, affecting how developers must design and deploy AI systems."],
+      ["Angular 17.2 Released", "The latest version includes improved hydration support and smaller bundle sizes, offering up to 30% faster initial load times for large applications.", "https://blog.angular.io/angular-v17-2-0-is-now-available-3c8d82fb875"],
+      ["EU AI Act Formally Adopted", "The world's first comprehensive legal framework for artificial intelligence establishes tiered regulations based on risk levels, affecting how developers must design and deploy AI systems.", "https://digital-strategy.ec.europa.eu/en/policies/european-approach-artificial-intelligence"],
       // ... and so on
     ]
     
