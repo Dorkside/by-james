@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the plan for creating and managing a dedicated LinkedIn Company Page for automated tech news sharing. The system will automatically post new articles to this Company Page, allowing interested connections to opt-in to tech news without cluttering your main professional profile.
+This document outlines the plan for integrating LinkedIn automation into the existing dev blog project. The system will automatically post new tech news articles to a LinkedIn Company Page when they are generated or published, leveraging the existing tech news generation workflow.
 
 ## 1. LinkedIn Company Page Setup
 
@@ -15,7 +15,7 @@ This document outlines the plan for creating and managing a dedicated LinkedIn C
 - Select relevant industry categories (Technology, Media, etc.)
 
 ### Page Optimization
-- Add a website link to your main content source
+- Add a website link to your main blog (james-martin.dev)
 - Include relevant specialties related to your tech focus areas
 - Create a compelling tagline that explains the page's purpose
 - Include information about posting frequency and content types
@@ -39,105 +39,174 @@ This document outlines the plan for creating and managing a dedicated LinkedIn C
 - Generate and securely store client ID and client secret
 - Document the authentication flow for future reference
 
-## 3. Technical Implementation
+## 3. Project Integration
+
+### Update Dependencies
+- Add required dependencies to package.json:
+  ```json
+  "dependencies": {
+    // existing dependencies
+    "axios": "^1.6.0",
+    "open": "^9.1.0"
+  }
+  ```
+- Run `npm install` to install the new dependencies
+
+### Environment Configuration
+- Add LinkedIn variables to your existing `.env` file:
+  ```
+  LINKEDIN_CLIENT_ID=your_client_id
+  LINKEDIN_CLIENT_SECRET=your_client_secret
+  LINKEDIN_REDIRECT_URI=your_redirect_uri
+  LINKEDIN_COMPANY_ID=your_company_id
+  LINKEDIN_TOKEN_REFRESH_INTERVAL=50 # days
+  ```
+- Update `.gitignore` to ensure LinkedIn tokens are not committed
+
+### Create LinkedIn Composable
+- Create `composables/useLinkedIn.ts` to encapsulate LinkedIn functionality
+- Implement token management and posting logic
+- Make it compatible with Nuxt 3's composable pattern
+
+## 4. Implementation Details
+
+### Scripts Organization
+- Create the following scripts in `scripts/linkedin/`:
+  - `auth.js`: Handles OAuth 2.0 authentication flow
+  - `token-manager.js`: Manages token refresh
+  - `post-article.js`: Posts articles to LinkedIn
+
+### Integration with Tech News Generation
+- Modify `scripts/generate-daily-news.js` to include LinkedIn posting
+- Add a step to post newly generated tech news articles to LinkedIn
+- Example integration:
+  ```javascript
+  // At the end of the generate-daily-news.js script
+  if (process.env.POST_TO_LINKEDIN === 'true') {
+    const { postArticleToLinkedIn } = require('./linkedin/post-article');
+    await postArticleToLinkedIn(newArticlePath);
+  }
+  ```
+
+### GitHub Actions Integration
+- Update the GitHub Actions workflow for tech news generation
+- Add LinkedIn posting step after successful content generation
+- Add LinkedIn secrets to GitHub repository
+- Example workflow addition:
+  ```yaml
+  - name: Post to LinkedIn
+    if: success()
+    run: node scripts/linkedin/post-article.js --latest
+    env:
+      LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
+      LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
+      LINKEDIN_COMPANY_ID: ${{ secrets.LINKEDIN_COMPANY_ID }}
+  ```
+
+### Token Refresh Automation
+- Create a separate GitHub Action to refresh LinkedIn tokens
+- Schedule it to run every 50 days (before the 60-day expiration)
+- Example workflow:
+  ```yaml
+  name: Refresh LinkedIn Token
+  on:
+    schedule:
+      - cron: '0 0 */50 * *'  # Run every 50 days
+  jobs:
+    refresh-token:
+      runs-on: ubuntu-latest
+      steps:
+        # ... setup steps
+        - name: Refresh LinkedIn Token
+          run: node scripts/linkedin/token-manager.js --refresh
+          env:
+            LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
+            LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
+  ```
+
+## 5. Technical Implementation
 
 ### Authentication System
 - Implement OAuth 2.0 flow to obtain access tokens
-- Store tokens securely (consider using environment variables or a secure vault)
-- Create a token refresh mechanism (LinkedIn tokens expire after 60 days)
+- Store tokens securely in `.linkedin/token.json`
+- Create a token refresh mechanism
 - Implement error handling for authentication failures
 
-### Content Detection System
-- Create a mechanism to detect when new articles are published on your site
-- Options include:
-  - Webhook triggers when content is published
-  - RSS feed monitoring
-  - Database change detection
-  - CMS plugin integration
+### Content Formatting
+- Extract metadata from tech news articles:
+  - Title from frontmatter
+  - Description from frontmatter
+  - URL based on site URL and article slug
+  - Generate thumbnail URL from article content or use default
+- Format the data for LinkedIn API
 
 ### Posting System
 - Develop a function to format article data for LinkedIn posts:
-  ```
-  {
-    "author": "urn:li:organization:[YOUR_COMPANY_ID]",
-    "commentary": "New article: [Brief description or commentary]",
-    "visibility": "PUBLIC",
-    "distribution": {
-      "feedDistribution": "MAIN_FEED"
-    },
-    "content": {
-      "contentEntities": [{
-        "entityLocation": "[ARTICLE_URL]",
-        "thumbnails": [{
-          "resolvedUrl": "[THUMBNAIL_IMAGE_URL]"
-        }]
-      }],
-      "title": "[ARTICLE_TITLE]",
-      "description": "[ARTICLE_DESCRIPTION]"
-    }
+  ```javascript
+  function formatLinkedInPost(article) {
+    return {
+      author: `urn:li:organization:${process.env.LINKEDIN_COMPANY_ID}`,
+      commentary: `New tech news update: ${article.title}`,
+      visibility: "PUBLIC",
+      distribution: {
+        feedDistribution: "MAIN_FEED"
+      },
+      content: {
+        contentEntities: [{
+          entityLocation: `${process.env.NUXT_PUBLIC_SITE_URL}/tech-news/${article.slug}`,
+          thumbnails: [{
+            resolvedUrl: article.thumbnail || `${process.env.NUXT_PUBLIC_SITE_URL}/images/tech-news-default.jpg`
+          }]
+        }],
+        title: article.title,
+        description: article.description
+      }
+    };
   }
   ```
 - Implement API calls to LinkedIn Posts API
-- Create a posting queue to manage timing and frequency
 - Add logging for successful posts and errors
 
-### Scheduling and Automation
-- Set up a cron job or scheduled task to run the posting process
-- Configure appropriate posting frequency (1-3 posts per day recommended)
-- Implement rate limiting to comply with LinkedIn API restrictions
-- Add delay mechanisms to space out multiple posts
-
-## 4. Testing and Monitoring
+## 6. Testing and Monitoring
 
 ### Testing Plan
 - Test authentication flow and token refresh
 - Verify post formatting and appearance on LinkedIn
-- Test error handling and recovery mechanisms
+- Test integration with tech news generation
 - Perform end-to-end testing of the entire workflow
 
 ### Monitoring System
-- Implement logging for all system activities
-- Create alerts for critical failures
-- Set up periodic checks for token validity
-- Monitor LinkedIn API response codes and handle accordingly
+- Add logging to LinkedIn scripts
+- Integrate with existing monitoring
+- Set up alerts for critical failures
+- Monitor LinkedIn API response codes
 
-## 5. Analytics and Optimization
+## 7. Analytics and Optimization
 
 ### Engagement Tracking
 - Utilize LinkedIn's built-in Company Page analytics
-- Track additional post performance metrics:
-  - Impressions
-  - Clicks
-  - Engagement rate
-  - Follower growth
-  - Demographics of engaged users
-- Export and store metrics in a database for long-term analysis
+- Track additional post performance metrics
+- Correlate with website traffic from LinkedIn
 
 ### Content Optimization
-- Analyze which types of content perform best
-- Adjust posting times based on engagement data
+- Analyze which types of tech news perform best on LinkedIn
+- Adjust posting strategy based on engagement data
 - Refine post formatting and commentary style
-- Test different thumbnail images and descriptions
 
-## 6. Promotion Strategy
+## 8. Documentation
 
-### Announce on Main Profile
-- Create a post on your personal LinkedIn profile announcing the Company Page
-- Explain the benefits of following the dedicated page
-- Invite your connections to follow the page
+### Update Project Documentation
+- Move this plan to `docs/linkedin-automation-plan.md`
+- Create `docs/linkedin-automation.md` with setup and usage instructions
+- Update main README.md to mention LinkedIn automation feature
+- Document the integration with tech news generation
 
-### Cross-Promotion
-- Occasionally share high-performing content from the Company Page to your personal profile
-- Add the Company Page to your "Experience" section on your personal profile
-- Include a link to the Company Page in your email signature
+### Script Documentation
+- Add detailed comments to all LinkedIn scripts
+- Create a README.md in the `scripts/linkedin/` directory
+- Document environment variables and configuration options
 
-### Growth Strategy
-- Respond to comments on the Company Page to build community
-- Join relevant LinkedIn groups and share select articles (where appropriate)
-- Consider creating a LinkedIn newsletter connected to the Company Page
-- Utilize LinkedIn's "Invite Connections" feature to invite relevant connections to follow the page
-
-## 7. Maintenance Plan
+## 9. Maintenance Plan
 
 ### Regular System Checks
 - Weekly verification that the automation is functioning correctly
@@ -147,43 +216,15 @@ This document outlines the plan for creating and managing a dedicated LinkedIn C
 ### Content Review
 - Periodic review of posted content quality and relevance
 - Adjustment of content categories based on audience engagement
-- Refinement of post formatting and style
 - Review Company Page analytics to identify trends and opportunities
-
-## 8. Compliance Considerations
-
-### LinkedIn Policies
-- Ensure compliance with LinkedIn's Professional Community Policies
-- Adhere to rate limits for API calls
-- Maintain appropriate posting frequency (avoid spam-like behavior)
-- Follow LinkedIn's Company Page guidelines
-
-### Privacy and Data Handling
-- Implement secure handling of authentication tokens
-- Document data retention policies
-- Ensure compliance with relevant privacy regulations
-
-## 9. Advanced Features (Optional)
-
-### Showcase Pages
-- Consider creating Showcase Pages for different tech categories if your content spans multiple domains
-- Implement separate posting workflows for each Showcase Page
-
-### LinkedIn Live
-- Explore using LinkedIn Live for periodic tech news roundups or discussions
-- Integrate live event scheduling into your automation system
-
-### Content Campaigns
-- Utilize LinkedIn's Campaign Manager for promoting high-value content
-- Set up tracking for campaign performance
 
 ## Timeline for Implementation
 
-1. **Week 1**: LinkedIn Company Page setup and Developer Application creation
-2. **Week 2**: Authentication system implementation and testing
-3. **Week 3**: Content detection and posting system development
-4. **Week 4**: End-to-end testing and refinement
-5. **Week 5**: Launch and promotion
+1. **Day 1**: LinkedIn Company Page setup and Developer Application creation
+2. **Day 2**: Project integration (dependencies, environment, composable)
+3. **Day 3**: Script implementation (auth, token-manager, post-article)
+4. **Day 4**: Integration with tech news generation and GitHub Actions
+5. **Day 5**: Testing and documentation
 6. **Ongoing**: Monitoring, analytics, and optimization
 
 ## Resources
@@ -192,4 +233,6 @@ This document outlines the plan for creating and managing a dedicated LinkedIn C
 - [LinkedIn API Documentation](https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api)
 - [LinkedIn Developer Portal](https://www.linkedin.com/developers/)
 - [OAuth 2.0 Documentation](https://oauth.net/2/)
-- [LinkedIn Professional Community Policies](https://www.linkedin.com/legal/professional-community-policies) 
+- [LinkedIn Professional Community Policies](https://www.linkedin.com/legal/professional-community-policies)
+- [Nuxt 3 Documentation](https://nuxt.com/docs)
+- [GitHub Actions Documentation](https://docs.github.com/en/actions) 

@@ -1,10 +1,10 @@
 # LinkedIn Tech News Automation
 
-This document outlines how to set up and use the LinkedIn automation feature for automatically posting new blog articles to a LinkedIn Company Page.
+This document outlines how to set up and use the LinkedIn automation feature for automatically posting tech news articles to a LinkedIn Company Page when they are generated.
 
 ## Overview
 
-The LinkedIn automation feature detects when new articles are published on your dev blog and automatically posts them to a dedicated LinkedIn Company Page. This allows you to maintain a consistent social media presence without manual effort, while keeping your personal LinkedIn profile separate from automated content.
+The LinkedIn automation feature integrates with the existing tech news generation workflow to automatically post new tech news articles to a dedicated LinkedIn Company Page. This allows you to maintain a consistent social media presence without manual effort, while keeping your personal LinkedIn profile separate from automated content.
 
 ## Setup Guide
 
@@ -40,6 +40,7 @@ LINKEDIN_CLIENT_SECRET=your_client_secret
 LINKEDIN_REDIRECT_URI=your_redirect_uri
 LINKEDIN_COMPANY_ID=your_company_id
 LINKEDIN_TOKEN_REFRESH_INTERVAL=50 # days
+POST_TO_LINKEDIN=true # Set to false to disable LinkedIn posting
 ```
 
 ### 4. Authentication Setup
@@ -54,17 +55,96 @@ This will:
 1. Open a browser window to authenticate with LinkedIn
 2. Redirect back to your application with an authorization code
 3. Exchange the code for an access token
-4. Store the token securely for future use
+4. Store the token securely in `.linkedin/token.json`
+
+## Integration with Tech News Generation
+
+The LinkedIn automation is integrated with the existing tech news generation workflow:
+
+1. When a new tech news article is generated via `scripts/generate-daily-news.js`
+2. The system extracts metadata from the article (title, description, URL)
+3. It formats the data for LinkedIn and posts it to your Company Page
+4. The process is fully automated through GitHub Actions
+
+### GitHub Actions Integration
+
+The LinkedIn posting is integrated into the existing GitHub Actions workflow for tech news generation:
+
+```yaml
+# Example workflow addition
+- name: Post to LinkedIn
+  if: success() && env.POST_TO_LINKEDIN == 'true'
+  run: node scripts/linkedin/post-article.js --latest
+  env:
+    LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
+    LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
+    LINKEDIN_COMPANY_ID: ${{ secrets.LINKEDIN_COMPANY_ID }}
+```
+
+A separate GitHub Action is scheduled to refresh the LinkedIn token before it expires:
+
+```yaml
+name: Refresh LinkedIn Token
+on:
+  schedule:
+    - cron: '0 0 */50 * *'  # Run every 50 days
+jobs:
+  refresh-token:
+    runs-on: ubuntu-latest
+    steps:
+      # ... setup steps
+      - name: Refresh LinkedIn Token
+        run: node scripts/linkedin/token-manager.js --refresh
+        env:
+          LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
+          LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
+```
+
+## Manual Usage
+
+### Posting the Latest Tech News Article
+
+To manually post the most recent tech news article:
+
+```bash
+node scripts/linkedin/post-article.js --latest
+```
+
+### Posting a Specific Article
+
+To post a specific tech news article by slug:
+
+```bash
+node scripts/linkedin/post-article.js --slug=2025-02-27-tech-industry-update
+```
+
+### Refreshing the Token
+
+To manually refresh the LinkedIn access token:
+
+```bash
+node scripts/linkedin/token-manager.js --refresh
+```
 
 ## Implementation Details
 
-### Integration with Nuxt Content
+### LinkedIn Composable
 
-The automation system integrates with Nuxt Content to detect when new articles are published:
+The `useLinkedIn` composable provides a convenient way to interact with LinkedIn from within your Nuxt application:
 
-1. When a new article is published in `/content/articles/`
-2. The system formats the article data for LinkedIn
-3. It posts the article to your LinkedIn Company Page using the LinkedIn API
+```typescript
+// Example usage in a component or page
+const { postToLinkedIn, getLinkedInStats } = useLinkedIn();
+
+// Post the current article to LinkedIn
+const article = {
+  title: 'Tech Industry Update',
+  description: 'Daily news roundup covering the most important tech developments.',
+  slug: '2025-02-27-tech-industry-update'
+};
+
+await postToLinkedIn(article);
+```
 
 ### Scripts
 
@@ -76,71 +156,11 @@ Handles the OAuth 2.0 authentication flow with LinkedIn.
 
 #### `scripts/linkedin/post-article.js`
 
-Posts an article to LinkedIn. Usage:
-
-```bash
-# Post the latest article
-node scripts/linkedin/post-article.js
-
-# Post a specific article
-node scripts/linkedin/post-article.js --slug=your-article-slug
-```
+Posts an article to LinkedIn, extracting metadata from the tech news article.
 
 #### `scripts/linkedin/token-manager.js`
 
 Manages LinkedIn access tokens, including refreshing them before they expire.
-
-### Automated Posting
-
-To set up automated posting, add a hook to your content publishing workflow:
-
-```javascript
-// Example hook in your Nuxt app
-export default defineNuxtPlugin(() => {
-  const nuxtApp = useNuxtApp()
-  
-  nuxtApp.hook('content:file:afterParse', (file) => {
-    if (file._path?.startsWith('/articles/') && file._draft === false) {
-      // Post to LinkedIn if it's a published article
-      const { postToLinkedIn } = useLinkedIn()
-      postToLinkedIn(file)
-    }
-  })
-})
-```
-
-## API Reference
-
-### LinkedIn Posts API
-
-The main endpoint used for posting content:
-
-```
-POST https://api.linkedin.com/rest/posts
-```
-
-Example payload:
-
-```json
-{
-  "author": "urn:li:organization:YOUR_COMPANY_ID",
-  "commentary": "New article: Article Title",
-  "visibility": "PUBLIC",
-  "distribution": {
-    "feedDistribution": "MAIN_FEED"
-  },
-  "content": {
-    "contentEntities": [{
-      "entityLocation": "https://your-blog.com/articles/article-slug",
-      "thumbnails": [{
-        "resolvedUrl": "https://your-blog.com/images/article-thumbnail.jpg"
-      }]
-    }],
-    "title": "Article Title",
-    "description": "Article description or excerpt"
-  }
-}
-```
 
 ## Troubleshooting
 
@@ -173,8 +193,8 @@ If your posts don't appear correctly on LinkedIn:
 
 ## Best Practices
 
-1. **Posting Frequency**: Limit to 1-3 posts per day to avoid overwhelming your audience
-2. **Content Quality**: Only post high-quality, relevant articles
+1. **Posting Frequency**: The system is configured to post only when new tech news articles are generated
+2. **Content Quality**: Ensure your tech news articles have accurate metadata (title, description)
 3. **Engagement**: Regularly check and respond to comments on your LinkedIn posts
 4. **Analytics**: Review LinkedIn analytics to understand what content performs best
 
@@ -184,4 +204,6 @@ If your posts don't appear correctly on LinkedIn:
 - [LinkedIn API Documentation](https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api)
 - [LinkedIn Developer Portal](https://www.linkedin.com/developers/)
 - [OAuth 2.0 Documentation](https://oauth.net/2/)
-- [LinkedIn Professional Community Policies](https://www.linkedin.com/legal/professional-community-policies) 
+- [LinkedIn Professional Community Policies](https://www.linkedin.com/legal/professional-community-policies)
+- [Nuxt 3 Documentation](https://nuxt.com/docs)
+- [GitHub Actions Documentation](https://docs.github.com/en/actions) 
