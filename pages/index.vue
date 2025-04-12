@@ -33,9 +33,9 @@
         </div>
         
         <!-- Sidebar -->
-        <div class="lg:w-80 shrink-0">
+        <!-- <div class="lg:w-80 shrink-0">
           <TechNewsSidebar />
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
