@@ -40,5 +40,5 @@ If you already think in terms of systems and flow, this setup makes sense fast. 
 It’s not magic. But it’s helpful enough to keep using—and exploring.
 
 Sources :
-[SPARC](https://www.linkedin.com/pulse/boomerang-tasks-automating-code-development-roo-sparc-reuven-cohen-nr3zc/)
-[Roo Code settings](https://www.linkedin.com/pulse/boomerang-tasks-automating-code-development-roo-sparc-reuven-cohen-nr3zc/)
+- [SPARC](https://www.linkedin.com/pulse/boomerang-tasks-automating-code-development-roo-sparc-reuven-cohen-nr3zc/)
+- [Roo Code settings](https://www.linkedin.com/pulse/boomerang-tasks-automating-code-development-roo-sparc-reuven-cohen-nr3zc/)
