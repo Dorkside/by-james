@@ -1,12 +1,12 @@
 <template>
   <NuxtLink :to="project._path" class="block group">
-    <article class="p-6 -m-6 rounded-lg transition-colors hover:bg-primary-100 dark:hover:bg-primary-800">
+    <article class="p-6 -m-6 rounded-lg transition-all duration-300 hover:bg-primary-100 dark:hover:bg-primary-800 hover:shadow-lg hover:-translate-y-1 border border-transparent hover:border-primary-200 dark:hover:border-primary-700">
       <div class="mb-4 overflow-hidden rounded-lg border border-primary-200 dark:border-primary-800">
         <NuxtImg
           v-if="project.image"
           :src="project.image"
           :alt="project.title"
-          class="w-full h-48 object-cover bg-primary-100 dark:bg-primary-800"
+          class="w-full h-48 object-cover bg-primary-100 dark:bg-primary-800 transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
           placeholder
           sizes="sm:100vw md:50vw lg:400px"

@@ -1,6 +1,6 @@
 <template>
   <NuxtLink :to="post._path" class="block group">
-    <article class="p-6 -m-6 rounded-lg transition-colors hover:bg-primary-100 dark:hover:bg-primary-800">
+    <article class="p-6 -m-6 rounded-lg transition-all duration-300 hover:bg-primary-100 dark:hover:bg-primary-800 hover:shadow-sm hover:-translate-y-0.5 border border-transparent hover:border-primary-200 dark:hover:border-primary-700">
       <div class="flex items-center gap-3 mb-2">
         <time :datetime="formatISODate(post.date)" class="text-sm text-primary-700 dark:text-primary-100">
           {{ formatDate(post.date) }}

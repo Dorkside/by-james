@@ -21,21 +21,24 @@
       <div class="hidden md:flex items-center space-x-8">
         <NuxtLink 
           to="/" 
-          class="hover:text-accent-green dark:hover:text-accent-green-dark transition-colors"
+          class="relative hover:text-accent-green dark:hover:text-accent-green-dark transition-all duration-300 group py-1"
         >
-          Home
+          <span class="relative z-10">Home</span>
+          <span class="absolute inset-0 scale-0 group-hover:scale-100 bg-accent-green/10 dark:bg-accent-green-dark/10 rounded-md transition-transform duration-300 origin-center"></span>
         </NuxtLink>
         <NuxtLink 
           to="/articles" 
-          class="hover:text-accent-green dark:hover:text-accent-green-dark transition-colors"
+          class="relative hover:text-accent-green dark:hover:text-accent-green-dark transition-all duration-300 group py-1"
         >
-          Articles
+          <span class="relative z-10">Articles</span>
+          <span class="absolute inset-0 scale-0 group-hover:scale-100 bg-accent-green/10 dark:bg-accent-green-dark/10 rounded-md transition-transform duration-300 origin-center"></span>
         </NuxtLink>
         <NuxtLink 
           to="/portfolio" 
-          class="hover:text-accent-green dark:hover:text-accent-green-dark transition-colors"
+          class="relative hover:text-accent-green dark:hover:text-accent-green-dark transition-all duration-300 group py-1"
         >
-          Portfolio
+          <span class="relative z-10">Portfolio</span>
+          <span class="absolute inset-0 scale-0 group-hover:scale-100 bg-accent-green/10 dark:bg-accent-green-dark/10 rounded-md transition-transform duration-300 origin-center"></span>
         </NuxtLink>
         <UiDarkModeToggle />
       </div>

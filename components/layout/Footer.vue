@@ -1,6 +1,9 @@
 <template>
-  <footer class="border-t border-primary-200 dark:border-primary-800 mt-24">
-    <div class="container mx-auto px-4 py-12 max-w-4xl">
+  <footer class="relative border-t border-primary-200 dark:border-primary-800 mt-24 overflow-hidden">
+    <!-- Subtle decorative element -->
+    <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-accent-green/30 to-transparent"></div>
+    
+    <div class="container mx-auto px-4 py-12 max-w-4xl relative">
       <div class="flex flex-col items-center space-y-6">
         <NuxtLink 
           to="/" 
