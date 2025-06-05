@@ -8,9 +8,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "og-image": "node scripts/generate-og-image.js",
-    "generate-news": "node scripts/generate-daily-news.js",
-    "test-news": "node scripts/test-daily-news.js"
+    "og-image": "node scripts/generate-og-image.js"
   },
   "dependencies": {
     "@nuxt/content": "^2.12.1",
